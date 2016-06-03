@@ -7,7 +7,7 @@
 #' The functions presented here are intended for developers and adminstrators and are likely less common requests. For additional
 #' connection management functions that are perhaps more common, see
 #'
-#' @describeIn AboutConnection Prints information about access parameters to specified database. Returns Null
+#' @describeIn AboutConnection Prints information about access parameters to specified database. Returns NULL
 #' @inheritParams OpenDB
 #' @export
 AccessInfo <- function(db){

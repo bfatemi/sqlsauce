@@ -8,13 +8,9 @@
 #' @section Internal Use Only:
 #'  Internal functions not intended to be used by developers. To open and close connections to a preconfigured database,
 #'  use: \code{\link{OpenDB}} or \code{\link{CloseDB}}.
-
-#' @section Contact:
-#'  To configure a database connection, report an error, have feature requests, or ask general questions, please send a request to
-#'  \email{bobby.fatemi@@intusurg.com}
-
+#'
 #' @seealso RODBC Vignette: \url{https://cran.r-project.org/web/packages/RODBC/RODBC.pdf}
-
+#'
 #' @rdname InternalConnHandling
 #' @inheritParams OpenDB
 #' @return Object of class RODBC or NULL in the case of .odbcClose()
@@ -22,7 +18,7 @@
 .odbcOpen <- function(db){
     nFrame <- sys.nframe()
     tryCatch({
-        return(odbcDriverConnect(ConnString(db)))
+        return(RODBC::odbcDriverConnect(ConnString(db)))
     }, error = function(e){
         Clean(db)
         DebugInfo("Check network or access", nFrame)
@@ -50,7 +46,7 @@
     cnObj <- GetConn(db)
     nFrame <- sys.nframe()
     tryCatch({
-        return(odbcReConnect(cnObj))
+        return(RODBC::odbcReConnect(cnObj))
     }, error = function(e){
         Clean(db)
         DebugInfo("Check network or access", nFrame)
@@ -108,7 +104,7 @@ SetConn <- function(object, name,
 #' @inheritParams OpenDB
 #' @export
 CleanAll <- function(){
-    odbcCloseAll()
+    RODBC::odbcCloseAll()
     rm(cn.env, envir = parent.env())
     return(1)
 }

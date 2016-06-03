@@ -6,8 +6,7 @@
 #' @details These functions are convenience wrappers that retrieve attribute information from a connection object that exists.
 #' The functions presented here are intended for developers and adminstrators and are likely less common requests. For additional
 #' connection management functions that are perhaps more common, see
-
-#' @rdname AboutConnection
+#'
 #' @describeIn AboutConnection Prints information about access parameters to specified database. Returns Null
 #' @inheritParams OpenDB
 #' @export

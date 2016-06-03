@@ -6,6 +6,7 @@ vcs.ignore.src: FALSE
 external.packages:
     data.table
     devtools
+    testthat
 local.repos: ~/Projects/localrepo
 load.external.packages.on.startup: TRUE
 ignored.packages: 

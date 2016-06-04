@@ -32,7 +32,6 @@ AccessInfo <- function(db){
 #' @describeIn AboutConnection Prints verbose information on the current status of specified database. Returns Null
 #' @inheritParams OpenDB
 #' @param nFrame An internally used parameter to provide the developer a traceback of where a connection error occured
-#' @export
 ConnStatus <- function(db=NULL, nFrame=NULL){
 
     # Identify who called for the status (tracing)
@@ -91,7 +90,6 @@ ConnStatus <- function(db=NULL, nFrame=NULL){
 
 #' @describeIn AboutConnection Convenience function to provide quick status for an open db
 #' @inheritParams OpenDB
-#' @export
 OpenConnStatus <- function(db=NULL){
     list(Open = IsOpen(db),
          Closed = IsClosed(db),
@@ -102,6 +100,16 @@ OpenConnStatus <- function(db=NULL){
          TimeLastOpened = TimeLastRequest(db),
          DurationActive = OpenDuration(db),
          AccessCount = AccessCount(db))
+}
+
+#' @describeIn AboutConnection Convenience function to provide quick status for a closed db
+#' @inheritParams OpenDB
+CloseConnStatus <- function(db=NULL){
+    list(ConnStatus = "Closed/Inactive",
+         InitiatedBy = OpenedBy(db),
+         TimeInitiated = TimeOpened(db),
+         TimeClosed = TimeClosed(db),
+         DurationClosed = CloseDuration(db))
 }
 
 #' @describeIn AboutConnection Convenience function to provide quick status for any db
@@ -123,16 +131,7 @@ ConnAttr <- function(db=NULL){
          AccessCount = AccessCount(db))
 }
 
-#' @describeIn AboutConnection Convenience function to provide quick status for a closed db
-#' @inheritParams OpenDB
-#' @export
-CloseConnStatus <- function(db=NULL){
-    list(ConnStatus = "Closed/Inactive",
-         InitiatedBy = OpenedBy(db),
-         TimeInitiated = TimeOpened(db),
-         TimeClosed = TimeClosed(db),
-         DurationClosed = CloseDuration(db))
-}
+
 
 
 #' @describeIn AboutConnection A function can be "inactive" which means it has never been initiated and neither open nor closed

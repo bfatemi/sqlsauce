@@ -11,7 +11,6 @@
 #' @param msg A message to be displayed with an error
 #' @param nFrame A numeric value representing an index for a frame in the function callstack
 #' @param friendly A friendly description of the error message to be displayed
-#' @export
 DebugInfo <- function(msg=NULL, nFrame=NULL){
     bordLen <- 60
     border  <- quote(cat(paste(c(rep("-", bordLen), "\n"), collapse = "")))
@@ -50,7 +49,6 @@ DebugInfo <- function(msg=NULL, nFrame=NULL){
 }
 
 #' @describeIn DebugInfo A helper function to display sql errors that occur during a query
-#' @export
 PrintSqlError <- function(msg=NULL, friendly=NULL, nFrame=NULL){
     statDT <- data.table(sapply(db, ConnAttr), keep.rownames = T)
     setnames(statDT, c("Database", db))
@@ -103,7 +101,6 @@ Timer <- function(START=TRUE, print=FALSE){
 }
 
 #' @describeIn DebugInfo A helper function to extract the relevant and helpful portion of the function callstack
-#' @export
 .CallStack <- function(nFrame){
     calls <- as.character(sys.calls()[1:nFrame])
     calls <- gsubfn::gsubfn(replacement = "", x = calls, pattern = "\\(.*\\)")
@@ -119,7 +116,6 @@ Timer <- function(START=TRUE, print=FALSE){
 
 #' @describeIn DebugInfo A function to parse the function call stack and identify a caller at the current postion
 #'      or at the position identified by "nFrame"
-#' @export
 .Caller <- function(nFrame=NULL){
     if(is.null(nFrame))
         nFrame <- sys.nframe()-2
@@ -133,7 +129,6 @@ Timer <- function(START=TRUE, print=FALSE){
 #' @param ll A list with objects to print information about
 #' @param label A character string used to label the information about the contents of "ll"
 #' @param title A character string to place as a header title to the information printed on the console
-#' @export
 .PrintInfo <- function(ll, label, title){
     bordLen <- 60
     border  <- quote(cat(paste(c(rep("-", bordLen), "\n"), collapse = "")))

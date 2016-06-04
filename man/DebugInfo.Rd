@@ -8,14 +8,14 @@
 \alias{PrintMessage}
 \alias{PrintSqlError}
 \alias{Timer}
-\alias{timetaken}
+\alias{xtimetaken}
 \title{Internal Dev Testing and Debugging Functions}
 \usage{
 DebugInfo(msg = NULL, nFrame = NULL)
 
 PrintSqlError(msg = NULL, friendly = NULL, nFrame = NULL)
 
-timetaken(time)
+xtimetaken(time)
 
 Timer(START = TRUE, print = FALSE)
 
@@ -61,7 +61,7 @@ with debugging errors related to tracing and identifying connections.
 
 \item \code{PrintSqlError}: A helper function to display sql errors that occur during a query
 
-\item \code{timetaken}: A helper function to assist timing operations
+\item \code{xtimetaken}: A helper function to assist timing operations
 
 \item \code{Timer}: A helper function to assist timing operations
 

@@ -78,7 +78,7 @@ PrintSqlError <- function(msg=NULL, friendly=NULL, nFrame=NULL){
 #' @describeIn DebugInfo A helper function to assist timing operations
 #' @param time A date/time object from which point to calculate duration since.
 #' @export
-timetaken <- function(time){
+xtimetaken <- function(time){
     return(as.numeric(difftime(time, Sys.time(), units = "sec")))
 }
 

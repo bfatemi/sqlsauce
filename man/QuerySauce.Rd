@@ -61,19 +61,24 @@ tbl <- "SFDC.dbo.PROCEDURES"
 #----------------------------------------------------------------------------
 # Get procedures of specified subjects that occurred since 2015
 #----------------------------------------------------------------------------
+psub <- c("HPB", "dVP", "dVC", "dVL") # for WHERE sauce
 
-# Ingredients for the WHERE sauce
-psub <- c("HPB", "dVP", "dVC", "dVL")       # procedure subjects
-yr <- 2015                                  # year condition
+wh    <- WhereSauce(ProcedureSubject == psub & Year(CreateDate) > 2015)
+query <- QuerySauce(tbl, top = 1000, where = wh)
 
+DT    <- xQuery(db, query)
 
-wh    <- WhereSauce(ProcedureSubject == psub & Year(CreateDate) > yr)
-query <- QuerySauce(tbl, top = 1000, wh)
+#----------------------------------------------------------------------------
+# Alternate workflow:
+#   Open/Closing is handled by xQuery unless db is open. In which case,
+#   the user can control when to open and close connections
+#----------------------------------------------------------------------------
 
+OpenDB(db)  # Open connection
 
-OpenDB(db)                  # Open connection
-DT <- xQuery(db, query)     # Run query
-CloseDB(db)                 # Close connection
+# .... Do work
+
+CloseDB(db) # Close connection
 
 }
 

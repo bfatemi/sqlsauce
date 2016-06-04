@@ -28,9 +28,9 @@ ConnStatus(db = NULL, nFrame = NULL)
 
 OpenConnStatus(db = NULL)
 
-ConnAttr(db = NULL)
-
 CloseConnStatus(db = NULL)
+
+ConnAttr(db = NULL)
 
 IsActive(db = NULL)
 
@@ -82,9 +82,9 @@ connection management functions that are perhaps more common, see
 
 \item \code{OpenConnStatus}: Convenience function to provide quick status for an open db
 
-\item \code{ConnAttr}: Convenience function to provide quick status for any db
-
 \item \code{CloseConnStatus}: Convenience function to provide quick status for a closed db
+
+\item \code{ConnAttr}: Convenience function to provide quick status for any db
 
 \item \code{IsActive}: A function can be "inactive" which means it has never been initiated and neither open nor closed
 

@@ -47,10 +47,10 @@ ConnStatus <- function(db=NULL, nFrame=NULL){
                  Database        = x,
                  OpenedBy        = attr(cnObj, "OpenedBy"),
                  TimeOpened      = timeO,
-                 Dur_Open        = timetaken(attr(cnObj, "TimeOpened")),
+                 Dur_Open        = xtimetaken(attr(cnObj, "TimeOpened")),
                  LastRequestedBy = attr(cnObj, "RequestedBy"),
                  TimeLastRequest = timeR,
-                 Dur_LastRequest = timetaken(attr(cnObj, "TimeRequested")),
+                 Dur_LastRequest = xtimetaken(attr(cnObj, "TimeRequested")),
                  AccessCount     = attr(cnObj, "AccessCount"),
                  Details         = as.list(RODBC::odbcGetInfo(cnObj)))
         }else if(IsClosed(x)){
@@ -59,7 +59,7 @@ ConnStatus <- function(db=NULL, nFrame=NULL){
                  Database        = x,
                  ClosedBy        = attr(cnObj, "ClosedBy"),
                  TimeClosed      = timeC,
-                 Dur_Closed      = timetaken(attr(cnObj, "TimeClosed")))
+                 Dur_Closed      = xtimetaken(attr(cnObj, "TimeClosed")))
         }else{
             list(Status          = "Closed",
                  Database        = x,
@@ -240,7 +240,7 @@ RequestedBy <- function(db=NULL){
 OpenDuration <- function(db=NULL){
     if(!IsOpen(db))
         return(NA)
-    timetaken(attr(GetConn(db), "TimeOpened"))
+    xtimetaken(attr(GetConn(db), "TimeOpened"))
 }
 
 #' @describeIn AboutConnection Returns the duration in seconds since the last request was made to a specifed database
@@ -249,7 +249,7 @@ OpenDuration <- function(db=NULL){
 DurSinceLastRequest <- function(db=NULL){
     if(!IsOpen(db))
         return(NA)
-    timetaken(attr(GetConn(db), "TimeRequested"))
+    xtimetaken(attr(GetConn(db), "TimeRequested"))
 }
 
 #' @describeIn AboutConnection Returns the duration in seconds since the status of the specifed database was changed to "close"
@@ -258,7 +258,7 @@ DurSinceLastRequest <- function(db=NULL){
 CloseDuration <- function(db=NULL){
     if(!IsClosed(db))
         return(NA)
-    timetaken(attr(GetConn(db), "TimeClosed"))
+    xtimetaken(attr(GetConn(db), "TimeClosed"))
 }
 
 #' @describeIn AboutConnection Returns a numeric that represents the count of requests that were made to a specified db

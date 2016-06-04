@@ -1,4 +1,4 @@
-#' Connection Information
+#' Connection Object Information
 #'
 #' Functions to get more granular details about a connection object that exists within the connection pool.
 #' For more general connection handling functions
@@ -53,7 +53,7 @@ ConnStatus <- function(db=NULL, nFrame=NULL){
                  TimeLastRequest = timeR,
                  Dur_LastRequest = timetaken(attr(cnObj, "TimeRequested")),
                  AccessCount     = attr(cnObj, "AccessCount"),
-                 Details         = as.list(odbcGetInfo(cnObj)))
+                 Details         = as.list(RODBC::odbcGetInfo(cnObj)))
         }else if(IsClosed(x)){
             timeC <- as.character(attr(cnObj, "TimeClosed"))
             list(Status          = "Closed",
@@ -89,6 +89,87 @@ ConnStatus <- function(db=NULL, nFrame=NULL){
 }
 
 
+#' @describeIn AboutConnection Convenience function to provide quick status for an open db
+#' @inheritParams OpenDB
+#' @export
+OpenConnStatus <- function(db=NULL){
+    list(Open = IsOpen(db),
+         Closed = IsClosed(db),
+         Active = IsActive(db),
+         InitiatedBy = OpenedBy(db),
+         TimeInitiated = TimeOpened(db),
+         LastOpenedBy = RequestedBy(db),
+         TimeLastOpened = TimeLastRequest(db),
+         DurationActive = OpenDuration(db),
+         AccessCount = AccessCount(db))
+}
+
+#' @describeIn AboutConnection Convenience function to provide quick status for any db
+#' @inheritParams OpenDB
+#' @export
+ConnAttr <- function(db=NULL){
+    list(Open = IsOpen(db),
+         Closed = IsClosed(db),
+         Active = IsActive(db),
+         InitiatedBy = OpenedBy(db),
+         LastOpenedBy = RequestedBy(db),
+         ClosedBy = ClosedBy(db),
+         TimeInitiated = TimeOpened(db),
+         TimeLastRequest = TimeLastRequest(db),
+         TimeClosed = TimeClosed(db),
+         DurationOpen = OpenDuration(db),
+         DurationSinceRequest = DurSinceLastRequest(db),
+         DurationClosed = CloseDuration(db),
+         AccessCount = AccessCount(db))
+}
+
+#' @describeIn AboutConnection Convenience function to provide quick status for a closed db
+#' @inheritParams OpenDB
+#' @export
+CloseConnStatus <- function(db=NULL){
+    list(ConnStatus = "Closed/Inactive",
+         InitiatedBy = OpenedBy(db),
+         TimeInitiated = TimeOpened(db),
+         TimeClosed = TimeClosed(db),
+         DurationClosed = CloseDuration(db))
+}
+
+
+#' @describeIn AboutConnection A function can be "inactive" which means it has never been initiated and neither open nor closed
+#' @inheritParams OpenDB
+#' @export
+IsActive <- function(db=NULL){
+    if(IsOpen(db) | IsClosed(db))
+        return(TRUE)
+    return(FALSE)
+}
+
+#' @describeIn AboutConnection Returns timestamp of when connection was last closed
+#' @inheritParams OpenDB
+#' @export
+TimeClosed <- function(db=NULL){
+    if(!IsClosed(db)){
+        return(NA)
+    }
+    attr(GetConn(db), "TimeClosed")
+}
+
+
+#' @describeIn AboutConnection Returns timestamp of when connection was first opened
+#' @inheritParams OpenDB
+#' @export
+TimeOpened <- function(db=NULL){
+    attr(GetConn(db), "TimeOpened")
+}
+
+#' @describeIn AboutConnection Returns timestamp of when connection was last requested (last opened)
+#' @inheritParams OpenDB
+#' @export
+TimeLastRequest <- function(db=NULL){
+    attr(GetConn(db), "TimeRequested")
+}
+
+
 #' @describeIn AboutConnection Returns BOOL indicating whether status is "Open"
 #' @inheritParams OpenDB
 #' @export
@@ -110,7 +191,7 @@ IsClosed <- function(db=NULL){
 #' @export
 OpenedBy <- function(db=NULL){
     if(!IsOpen(db))
-        return("Connection not open")
+        return(NA)
     opener <- attr(GetConn(db), "OpenedBy")
     if(grepl("OpenDB",opener)){
         return("Global Connection (user script)")
@@ -125,7 +206,7 @@ OpenedBy <- function(db=NULL){
 #' @export
 ReOpenedBy <- function(db=NULL){
     if(!IsOpen(db))
-        return("Connection not open")
+        return(NA)
     opener <- attr(GetConn(db), "ReOpenedBy")
     if(grepl("OpenDB",opener)){
         return("Global Connection (user script)")
@@ -140,7 +221,7 @@ ReOpenedBy <- function(db=NULL){
 #' @export
 ClosedBy <- function(db=NULL){
     if(!IsClosed(db))
-        return("Connection not closed")
+        return(NA)
     attr(GetConn(db), "ClosedBy")
 }
 
@@ -150,7 +231,7 @@ ClosedBy <- function(db=NULL){
 #' @export
 RequestedBy <- function(db=NULL){
     if(!IsOpen(db))
-        return("Connection not open")
+        return(NA)
     attr(GetConn(db), "RequestedBy")
 }
 
@@ -159,16 +240,16 @@ RequestedBy <- function(db=NULL){
 #' @export
 OpenDuration <- function(db=NULL){
     if(!IsOpen(db))
-        return("Connection not open")
+        return(NA)
     timetaken(attr(GetConn(db), "TimeOpened"))
 }
 
 #' @describeIn AboutConnection Returns the duration in seconds since the last request was made to a specifed database
 #' @inheritParams OpenDB
 #' @export
-TimeSinceRequest <- function(db=NULL){
+DurSinceLastRequest <- function(db=NULL){
     if(!IsOpen(db))
-        return("Connection not open")
+        return(NA)
     timetaken(attr(GetConn(db), "TimeRequested"))
 }
 
@@ -177,7 +258,7 @@ TimeSinceRequest <- function(db=NULL){
 #' @export
 CloseDuration <- function(db=NULL){
     if(!IsClosed(db))
-        return("Connection not closed")
+        return(NA)
     timetaken(attr(GetConn(db), "TimeClosed"))
 }
 
@@ -186,6 +267,6 @@ CloseDuration <- function(db=NULL){
 #' @export
 AccessCount <- function(db=NULL){
     if(!IsOpen(db))
-        return("Connection not open")
+        return(NA)
     attr(GetConn(db), "AccessCount")
 }

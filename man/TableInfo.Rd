@@ -10,13 +10,15 @@
 \alias{getTables}
 \title{Tools to explore the tables or columns in a database}
 \usage{
-TableInfo(db = NULL, closeConn = F, print = F)
+TableInfo(db = NULL, closeConn = FALSE, print = FALSE)
 
 PrimaryKey(db = NULL, tables = NULL, closeConn = F)
 
-ColumnInfo(db = "Morpheus", tables = NULL, closeConn = F, print = T)
+ColumnInfo(db = "Morpheus", tables = NULL, closeConn = FALSE,
+  print = TRUE)
 
-Columns(db = "Morpheus", tables = "MainLog", return = F, closeConn = T)
+Columns(db = "Morpheus", tables = "MainLog", return = FALSE,
+  closeConn = TRUE)
 
 getTables(db)
 

@@ -16,7 +16,7 @@
 #'
 #' @export
 #'
-#' @example /example/ex_queryworkflow.R
+#' @example /examples/ex_queryworkflow.R
 #' @import data.table
 QuerySauce <- function(tbl=NULL, top=NULL, cols=NULL, where=NULL){
     cols[is.null(cols)] <- "*"

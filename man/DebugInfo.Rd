@@ -45,6 +45,9 @@ RunTimer(code, successMsg = NULL, Catch = FALSE, ...)
 \item{START}{A boolean value representing whether to start the timer or end the timer. START = FALSE
 will display the timer information}
 
+\item{print}{A boolean indicating whether to print output on the console in addition to returning a numeric
+value representing the duration in seconds}
+
 \item{ll}{A list with objects to print information about}
 
 \item{label}{A character string used to label the information about the contents of "ll"}
@@ -57,7 +60,9 @@ will display the timer information}
 
 \item{code}{The code to run}
 
-\item{wmsg}{A character string representing the error message to display}
+\item{emsg}{A character string representing the error message to display}
+
+\item{wmsg}{A character string representing the warning message to display}
 
 \item{mmsg}{A character string representing the generic message to display}
 
@@ -70,8 +75,6 @@ will display the timer information}
 \item{...}{Arguments to pass to RunCatch if boolean \code{Catch} is provided as TRUE}
 
 \item{msg}{A character string representing the message to display within the banner}
-
-\item{wmsg}{A character string representing the warning message to display}
 
 \item{code}{The code to run}
 }

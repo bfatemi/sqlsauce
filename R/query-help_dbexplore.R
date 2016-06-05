@@ -8,7 +8,7 @@
 #' @param print A boolean indicating whether to print information on the R console
 #'
 #'
-#' @example /example/ex_dbexplorer.R
+#' @example /examples/ex_dbexplorer.R
 #' @describeIn TableInfo Given a database, get all databases on same server
 #' @export
 #' @import data.table

@@ -159,8 +159,7 @@ getColumns <- function(db, tables) {
     cnObj  <- GetConn(db)
 
     dt <- RunCatch(sqlColumns(channel = cnObj,
-                              sqtable = tables,
-                              schema  = "dbo"), "Error in getColumns")
+                              sqtable = tables), "Error in getColumns")
     dt <- data.table(dt)
     return(dt)
 }
@@ -172,8 +171,7 @@ getPrimaryKey <- function(db, tables) {
     cnObj  <- GetConn(db)
 
     dt <- RunCatch(sqlPrimaryKeys(channel = cnObj,
-                                  sqtable = tables,
-                                  schema  = "dbo"), "Error in getPrimaryKey")
+                                  sqtable = tables), "Error in getPrimaryKey")
     dt <- data.table(dt)
     return(dt)
 }

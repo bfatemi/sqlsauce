@@ -11,8 +11,10 @@ PrimaryKey("Morpheus")
 PrimaryKey("Morpheus", "MainLog")
 
 # Let's explore MainLog columns
-ColumnInfo(tbl = "MainLog")
+ColumnInfo(tables = "MainLog")
 
 # Shortcuts/quick view
 Columns()
 Columns(table = "ProcedureSummaries")
+
+

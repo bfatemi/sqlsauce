@@ -16,7 +16,7 @@
 #'
 #' @export
 #'
-#' @example /example/ex1_queryworkflow.R
+#' @example /example/ex_queryworkflow.R
 QuerySauce <- function(tbl=NULL, top=NULL, cols=NULL, where=NULL){
     cols[is.null(cols)] <- "*"
     top[!is.null(top)] <- paste("TOP", top)[!is.null(top)]

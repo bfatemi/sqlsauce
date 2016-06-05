@@ -1,23 +1,38 @@
-#' @export
+#' ConnectionHandlers
+#'
+#' Functions to get/set connection objects and attributes.
+#'
+#' @rdname InternalConnHandling
+#' @inheritParams OpenDB
 cn.env <- new.env(parent = emptyenv())
 
 #' @rdname InternalConnHandling
 #' @inheritParams OpenDB
 #' @export
 GetConn <- function(db){
-    if(exists("cn.env", mode="environment")){
-        if(exists(paste0("cn.", db), cn.env)){
-            get(paste0("cn.", db), cn.env)
-        }
+    # if(exists("cn.env", mode="environment")){
+    #     if(exists(paste0("cn.", db), cn.env)){
+    #         get(paste0("cn.", db), cn.env)
+    #     }
+    # }else{
+    #     assign("cn.env", new.env(parent = as.environment("package:sqlsauce")))
+    #
+    # }
+
+    # updated logic because cn.env will always exist and there will
+    # never be a situation where it will need to be assigned here.
+    if(exists(paste0("cn.", db), cn.env)){
+        get(paste0("cn.", db), cn.env)
     }else{
-        assign("cn.env", new.env(parent = as.environment("package:sqlsauce")))
+        NULL
     }
 }
 
 #' @rdname InternalConnHandling
 #' @inheritParams OpenDB
 #' @export
-SetConn <- function(object, name,
+SetConn <- function(object     = NULL,
+                    name       = NULL,
                     status     = NULL,
                     openedby   = NULL,
                     reopenedby = NULL,
@@ -32,12 +47,12 @@ SetConn <- function(object, name,
 
     ### Set object attributes
     attr(object, "Status")        <- status
-    attr(object, "OpenedBy")      <- "Global" #openedby
-    attr(object, "ReOpenedBy")    <- "Global" #reopenedby
+    attr(object, "OpenedBy")      <- openedby
+    attr(object, "ReOpenedBy")    <- reopenedby
     attr(object, "TimeOpened")    <- tOpen
-    attr(object, "RequestedBy")   <- "Global" #request
+    attr(object, "RequestedBy")   <- request
     attr(object, "TimeRequested") <- tRequest
-    attr(object, "ClosedBy")      <- "Global" #closedby
+    attr(object, "ClosedBy")      <- closedby
     attr(object, "TimeClosed")    <- tClose
     attr(object, "AccessCount")   <- count
 
@@ -50,7 +65,7 @@ SetConn <- function(object, name,
 #' @export
 CleanAll <- function(){
     RODBC::odbcCloseAll()
-    rm(cn.env, envir = parent.env(as.environment("package:sqlsauce")))
+    rm(list = ls(cn.env), envir = cn.env)
     return(1)
 }
 
@@ -61,10 +76,15 @@ CleanAll <- function(){
 #' @export
 Clean <- function(db){
     cnName <- paste0("cn.",db)
-    # cnObj <- GetConn(db)
-    # .odbcClose(cnObj)
-    rm(list = cnName, envir = cn.env)
-    return(1)
+
+    if(exists(cnName, envir = cn.env)){
+        if(IsOpen(db))
+            CloseDB(db)
+
+        rm(list = cnName, envir = cn.env)
+        return(1)
+    }
+    return(0)
 }
 
 #' @rdname InternalConnHandling

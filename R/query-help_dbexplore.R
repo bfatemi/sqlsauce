@@ -84,7 +84,7 @@ ColumnInfo <- function(db="Morpheus", tables=NULL, closeConn=F, print=T) {
     if(is.null(tables)) tables <- "%"
     if(is.null(db)) stop("Please provide db name")
 
-    OpenDB(db)                                     # will check valid db name
+    OpenDB(db)
     dt <- getColumns(db, tables)                     # run query for col names
     set(dt, j = dropCols, value = NULL)
     setnames(dt, keepCols, friendlyName)
@@ -121,6 +121,8 @@ Columns <- function(db="Morpheus", tables="MainLog", return=F, closeConn=T){
     cat("\n\n")
 
     dt <- ColumnInfo(db, tables, closeConn, print = F)
+    dt <- data.table(dt)
+
     set(dt, j=c("Database",
                 "Table",
                 "ColumnSize",
@@ -136,46 +138,33 @@ getTables <- function(db) {
     cnObj <- GetConn(db)
     nFrame <- sys.nframe()
 
-    tryCatch({
-        dt <- data.table(RODBC::sqlTables(channel   = cnObj,
-                                          schema    = "dbo",
-                                          tableType = "TABLE"))
-    }, error = function(e){
-        CloseDB(db)
-        DebugInfo("Error in getTables", nFrame)
-    })
+    dt <- RunCatch(RODBC::sqlTables(channel   = cnObj,
+                                    schema    = "dbo",
+                                    tableType = "TABLE"), "Error in getTables")
+    dt <- data.table(dt)
     return(dt)
 }
 
 #' @describeIn TableInfo An internal wrapper around sqlColumns
-getColumns <- function(db, table) {
+getColumns <- function(db, tables) {
     cnObj  <- GetConn(db)
     nFrame <- sys.nframe()
 
-    tryCatch({
-        dt <- data.table(RODBC::sqlColumns(channel = cnObj,
-                                           sqtable = table,
-                                           schema  = "dbo"))
-    }, error = function(e){
-        CloseDB(db)
-        DebugInfo("Error in getColumns", nFrame)
-    })
-    return(dt)
+    dt <- RunCatch(RODBC::sqlColumns(channel = cnObj,
+                                     sqtable = tables,
+                                     schema  = "dbo"), "Error in getColumns")
+    dt <- data.table(dt)
     return(dt)
 }
 
 #' @describeIn TableInfo An internal wrapper around sqlPrimaryKeys
-getPrimaryKey <- function(db, table) {
+getPrimaryKey <- function(db, tables) {
     cnObj  <- GetConn(db)
     nFrame <- sys.nframe()
 
-    tryCatch({
-        dt <- data.table(RODBC::sqlPrimaryKeys(channel = cnObj,
-                                               sqtable = table,
-                                               schema  = "dbo"))
-    }, error = function(e){
-        CloseDB(db)
-        DebugInfo("Error in getPrimaryKey", nFrame)
-    })
+    dt <- RunCatch(RODBC::sqlPrimaryKeys(channel = cnObj,
+                                         sqtable = tables,
+                                         schema  = "dbo"), "Error in getPrimaryKey")
+    dt <- data.table(dt)
     return(dt)
 }

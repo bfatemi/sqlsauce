@@ -20,16 +20,13 @@ xQuery <- function(db, query, time=TRUE) {
         on.exit(CloseDB(db))    # then close it on exit
     }
 
-    # get the connection object
-    cnObj <- GetConn(db)
-
     # remove sci notation (for numerics in query), reset to global onexit
     globscipen <- options()$scipen
     options(scipen = 1000)
     on.exit(options(scipen = globscipen), add = T)
 
     Timer()
-    dt <- data.table(RODBC::sqlQuery(cnObj, query, errors = T)) # start timer
+    dt <- data.table(RODBC::sqlQuery(GetConn(db), query, errors = T)) # start timer
     dur <- Timer(START = F)
 
     if(time){

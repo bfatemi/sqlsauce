@@ -1,4 +1,4 @@
-#' @title Connection Handling
+#' @title Open and Close Connections
 #'
 #' @description A number of functions to handle connections. These functions are intended for developers that need
 #' access to the connection environment as they develop data products. All functions within the morphr package
@@ -19,6 +19,9 @@
 #' status is changed to "closed". From there on, the connection object exists in the pool until it is garbage collected
 #' or explicitly removed.
 #'
+#' @section Internal Functions:
+#' These internal functions are wrappers for package:RODBC functions. The wrappers are there primarily for custom
+#' error handling and are not intended to be exposed to developers or users.
 #'
 #' @param db A character value naming the database to use
 #' @param verbose A boolean indicating whether to print a status report on the console
@@ -109,4 +112,47 @@ CloseDB <- function(db=NULL, verbose=F) {
     return(1)
 }
 
+#' @describeIn OpenDB Internal RODBC wrapper
+.odbcOpen <- function(db){
+    #nFrame <- sys.nframe()
+    emsg <- "CONNECTION FAILED"
+    pat <- ".*(?<=])"
 
+    RunCatch(
+        RODBC::odbcDriverConnect(ConnString(db), readOnlyOptimize = T),
+        emsg,
+        emsg,
+        pattern = pat
+    )
+}
+
+#' @describeIn OpenDB Internal RODBC wrapper
+.odbcClose <- function(db) {
+    cnObj <- GetConn(db)
+
+    if(is.null(cnObj)){
+        msg <- paste0("Could not close. Connection to ", db, " does not exist")
+        emsg <- "CLOSE CONNECTION FAILED"
+        RunCatch(stop(msg), emsg)
+    }else{
+        if(IsClosed(db)){
+            return(0)
+        }else{
+            emsg <- "UNK:CLOSE CONNECTION ERROR"
+            RunCatch(RODBC::odbcClose(cnObj), emsg)
+            return(1)
+        }
+    }
+}
+
+#' @describeIn OpenDB Internal RODBC wrapper
+.odbcReOpen <- function(db) {
+    cnObj <- GetConn(db)
+    nFrame <- sys.nframe()
+    tryCatch({
+        return(RODBC::odbcReConnect(cnObj))
+    }, error = function(e){
+        Clean(db)
+        DebugInfo("Check network or access", nFrame)
+    })
+}

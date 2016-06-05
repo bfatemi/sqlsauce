@@ -12,7 +12,7 @@
 #' @describeIn TableInfo Given a database, get all databases on same server
 #' @export
 #' @import data.table
-TableInfo <- function(db=NULL, closeConn=F, print=F) {
+TableInfo <- function(db=NULL, closeConn=FALSE, print=FALSE) {
     dropCols     <- c("TABLE_SCHEM", "TABLE_TYPE", "REMARKS")
     keepCols     <- c("TABLE_CAT", "TABLE_NAME")
     friendlyName <- c("Database",  "Table")
@@ -34,9 +34,9 @@ TableInfo <- function(db=NULL, closeConn=F, print=F) {
     res <- rbindlist(lapply(db, fn_fetch))
 
     if(print){
-        print(res[,.(NumberOfTables = .N), by=Database], row.names = F)
+        print(res[,.(NumberOfTables = .N), by=Database], row.names = FALSE)
         cat("\n\n")
-        print(res[1:min(15,nrow(res)),], row.names = F)
+        print(res[1:min(15,nrow(res)),], row.names = FALSE)
     }
 
     if(closeConn) CloseDB(db)
@@ -64,7 +64,7 @@ PrimaryKey <- function(db=NULL, tables=NULL, closeConn=F){
     }
 
     dt <- data.table::rbindlist(lapply(tables, f))
-    data.table::setkey(dt, Database, Table)                          # key for merge inside other explore fns
+    data.table::setkeyv(dt, c("Database", "Table"))
 
     if(closeConn) CloseDB(db)
     return(dt)
@@ -74,7 +74,7 @@ PrimaryKey <- function(db=NULL, tables=NULL, closeConn=F){
 #'      If argument "tables" not provided, retrive information about all tables in the specified database
 #' @export
 #' @import data.table
-ColumnInfo <- function(db="Morpheus", tables=NULL, closeConn=F, print=T) {
+ColumnInfo <- function(db="Morpheus", tables=NULL, closeConn=FALSE, print=TRUE) {
     dropCols     <- c("TABLE_SCHEM", "DATA_TYPE", "BUFFER_LENGTH",
                       "NUM_PREC_RADIX", "NULLABLE", "REMARKS",
                       "COLUMN_DEF", "SQL_DATA_TYPE","SQL_DATETIME_SUB",
@@ -94,7 +94,7 @@ ColumnInfo <- function(db="Morpheus", tables=NULL, closeConn=F, print=T) {
 
     data.table::set(dt, j = dropCols, value = NULL)
     data.table::setnames(dt, keepCols, friendlyName)
-    data.table::setkey(dt, Database, Table)
+    data.table::setkeyv(dt, c("Database", "Table"))
 
     # Add Column for IsKey
     data.table::set(dt, j="IsKey", value = "NO")
@@ -104,10 +104,10 @@ ColumnInfo <- function(db="Morpheus", tables=NULL, closeConn=F, print=T) {
 
     if(print){
         cat("\n")
-        print(dt[,.(NumberOfCols = .N), by="Database,Table"], row.names = F)
+        print(dt[,.(NumberOfCols = .N), by="Database,Table"], row.names = FALSE)
         cat("\n\n")
         n <- min(10,nrow(dt))
-        print(dt[1:n, .(Table, Column, Type, Position, IsKey)], row.names = F)
+        print(dt[1:n, .(Table, Column, Type, Position, IsKey)], row.names = FALSE)
         if(n < nrow(dt))
             cat("--------------------- TRUNCATED ---------------------\n")
     }
@@ -122,21 +122,21 @@ ColumnInfo <- function(db="Morpheus", tables=NULL, closeConn=F, print=T) {
 #'      information is simply printed on the R console and not captured. Ideal default for quick lookups.
 #' @export
 #' @import data.table
-Columns <- function(db="Morpheus", tables="MainLog", return=F, closeConn=T){
+Columns <- function(db="Morpheus", tables="MainLog", return=FALSE, closeConn=TRUE){
     cat("\nDatabase:", db)
     cat("\nDB Table:", tables)
     cat("\n\n")
 
-    dt <- ColumnInfo(db, tables, closeConn, print = F)
+    dt <- ColumnInfo(db, tables, closeConn, print = FALSE)
 
     data.table::set(dt, j=c("Database",
-                "Table",
-                "ColumnSize",
-                "DecimalDigits",
-                "IsNullable"), value=NULL)
+                            "Table",
+                            "ColumnSize",
+                            "DecimalDigits",
+                            "IsNullable"), value=NULL)
     if(return)
         return(dt)
-    print(dt, row.names = T)
+    print(dt, row.names = TRUE)
 }
 
 #' @describeIn TableInfo An internal wrapper around sqlTables
@@ -146,8 +146,8 @@ getTables <- function(db) {
     cnObj <- GetConn(db)
 
     dt <- RunCatch(sqlTables(channel   = cnObj,
-                                    schema    = "dbo",
-                                    tableType = "TABLE"), "Error in getTables")
+                             schema    = "dbo",
+                             tableType = "TABLE"), "Error in getTables")
     dt <- data.table(dt)
     return(dt)
 }
@@ -159,8 +159,8 @@ getColumns <- function(db, tables) {
     cnObj  <- GetConn(db)
 
     dt <- RunCatch(sqlColumns(channel = cnObj,
-                                     sqtable = tables,
-                                     schema  = "dbo"), "Error in getColumns")
+                              sqtable = tables,
+                              schema  = "dbo"), "Error in getColumns")
     dt <- data.table(dt)
     return(dt)
 }
@@ -172,8 +172,8 @@ getPrimaryKey <- function(db, tables) {
     cnObj  <- GetConn(db)
 
     dt <- RunCatch(sqlPrimaryKeys(channel = cnObj,
-                                         sqtable = tables,
-                                         schema  = "dbo"), "Error in getPrimaryKey")
+                                  sqtable = tables,
+                                  schema  = "dbo"), "Error in getPrimaryKey")
     dt <- data.table(dt)
     return(dt)
 }

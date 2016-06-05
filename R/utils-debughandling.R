@@ -51,7 +51,7 @@ DebugInfo <- function(msg=NULL, nFrame=NULL){
 #' @describeIn DebugInfo A helper function to display sql errors that occur during a query
 #' @import data.table
 PrintSqlError <- function(msg=NULL, friendly=NULL, nFrame=NULL){
-    statDT <- data.table(sapply(db, ConnAttr), keep.rownames = T)
+    statDT <- data.table(sapply(db, ConnAttr), keep.rownames = TRUE)
     setnames(statDT, c("Database", db))
 
 
@@ -73,7 +73,7 @@ PrintSqlError <- function(msg=NULL, friendly=NULL, nFrame=NULL){
         give.length = FALSE,
         give.attr = FALSE,
         give.head = FALSE)
-    stop(paste0("SQL ERROR: ", msg), call. = F)
+    stop(paste0("SQL ERROR: ", msg), call. = FALSE)
 }
 
 #' @describeIn DebugInfo A helper function to assist timing operations
@@ -85,6 +85,8 @@ xtimetaken <- function(time){
 #' @describeIn DebugInfo A helper function to assist timing operations
 #' @param START A boolean value representing whether to start the timer or end the timer. START = FALSE
 #'      will display the timer information
+#' @param print A boolean indicating whether to print output on the console in addition to returning a numeric
+#'      value representing the duration in seconds
 Timer <- function(START=TRUE, print=FALSE){
     if(START){
         tstamp <<- Sys.time()
@@ -183,7 +185,7 @@ PrintMessage <- function(msg, sym="#", content=NULL){
 
 #' @describeIn DebugInfo A generic and intuitive error handling function (tryCatch wrapper)
 #' @param code The code to run
-#' @param wmsg A character string representing the error message to display
+#' @param emsg A character string representing the error message to display
 #' @param wmsg A character string representing the warning message to display
 #' @param mmsg A character string representing the generic message to display
 #' @param pattern An optional regex pattern used to parse the thrown error/warning/message
@@ -191,28 +193,28 @@ PrintMessage <- function(msg, sym="#", content=NULL){
 RunCatch <- function(code, emsg = NULL, wmsg = NULL, mmsg = NULL, pattern=NULL){
     Parse <- function(msg){
         if(is.null(pattern)) return(msg)
-        gsub(pattern, "", msg, perl = T)
+        gsub(pattern, "", msg, perl = TRUE)
     }
 
     efun <- function(c){
         if(is.null(emsg))
             emsg <- "GENERIC ERROR"
         PrintMessage(emsg, sym = "=")
-        stop(Parse(c$message), call. = F)
+        stop(Parse(c$message), call. = FALSE)
     }
 
     wfun <- function(c){
         if(is.null(wmsg))
             wmsg <- "GENERIC WARNING"
         PrintMessage(wmsg, sym = "=")
-        stop(Parse(c$message), call. = F)
+        stop(Parse(c$message), call. = FALSE)
     }
 
     mfun <- function(c){
         if(is.null(mmsg))
             mmsg <- "GENERIC MESSAGE"
         PrintMessage(mmsg, sym = "=")
-        stop(Parse(c$message), call. = F)
+        stop(Parse(c$message), call. = FALSE)
     }
 
     tryCatch(code,
@@ -236,7 +238,7 @@ RunTimer <- function(code, successMsg=NULL, Catch=FALSE, ...){
 
     Timer()
     RunCatch(eval(code), ...)
-    dur <- Timer(START = F)
+    dur <- Timer(START = FALSE)
 
     PrintMessage(msg = successMsg, "+")
     cat(paste0("Duration of call (seconds): ", dur))

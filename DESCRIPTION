@@ -9,6 +9,6 @@ Imports: stringr,
     gsubfn,
     RODBC,
     data.table
-License: MIT
+License: MIT + file LICENSE
 LazyData: true
 Suggests: testthat

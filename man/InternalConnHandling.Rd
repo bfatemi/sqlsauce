@@ -11,7 +11,7 @@
 \alias{SetConn}
 \alias{cn.env}
 \title{ConnectionHandlers}
-\format{\preformatted{<environment: 0x0000000008b2d2e0> 
+\format{\preformatted{<environment: 0x0000000008c497c8> 
 }}
 \usage{
 cn.env

@@ -63,8 +63,9 @@ SetConn <- function(object     = NULL,
 #' @rdname InternalConnHandling
 #' @inheritParams OpenDB
 #' @export
+#' @importFrom RODBC odbcCloseAll
 CleanAll <- function(){
-    RODBC::odbcCloseAll()
+    odbcCloseAll()
     rm(list = ls(cn.env), envir = cn.env)
     return(1)
 }

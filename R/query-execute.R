@@ -10,6 +10,7 @@
 #'
 #' @return A data.table with query results
 #' @export
+#' @importFrom RODBC sqlQuery
 xQuery <- function(db, query, time=TRUE) {
 
     # get frame number in case error occurs
@@ -26,7 +27,7 @@ xQuery <- function(db, query, time=TRUE) {
     on.exit(options(scipen = globscipen), add = T)
 
     Timer()
-    dt <- data.table(RODBC::sqlQuery(GetConn(db), query, errors = T)) # start timer
+    dt <- data.table(sqlQuery(GetConn(db), query, errors = T)) # start timer
     dur <- Timer(START = F)
 
     if(time){

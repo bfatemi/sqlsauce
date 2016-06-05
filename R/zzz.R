@@ -3,7 +3,9 @@
 #' @param libname
 #' @param pkgname
 .onAttach <- function(libname, pkgname) {
-    packageStartupMessage("Welcome to my package")
+    #packageStartupMessage("Welcome to my package")
+    suppressWarnings(suppressMessages(libname))
+    suppressPackageStartupMessages(libname)
 }
 
 # .onLoad <- function(libname, pkgname) {

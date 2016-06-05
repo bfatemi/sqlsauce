@@ -113,13 +113,14 @@ CloseDB <- function(db=NULL, verbose=F) {
 }
 
 #' @describeIn OpenDB Internal RODBC wrapper
+#' @importFrom RODBC odbcDriverConnect
 .odbcOpen <- function(db){
-    #nFrame <- sys.nframe()
+
     emsg <- "CONNECTION FAILED"
     pat <- ".*(?<=])"
 
     RunCatch(
-        RODBC::odbcDriverConnect(ConnString(db), readOnlyOptimize = T),
+        odbcDriverConnect(ConnString(db), readOnlyOptimize = T),
         emsg,
         emsg,
         pattern = pat
@@ -127,6 +128,7 @@ CloseDB <- function(db=NULL, verbose=F) {
 }
 
 #' @describeIn OpenDB Internal RODBC wrapper
+#' @importFrom RODBC odbcClose
 .odbcClose <- function(db) {
     cnObj <- GetConn(db)
 
@@ -139,18 +141,19 @@ CloseDB <- function(db=NULL, verbose=F) {
             return(0)
         }else{
             emsg <- "UNK:CLOSE CONNECTION ERROR"
-            RunCatch(RODBC::odbcClose(cnObj), emsg)
+            RunCatch(odbcClose(cnObj), emsg)
             return(1)
         }
     }
 }
 
 #' @describeIn OpenDB Internal RODBC wrapper
+#' @importFrom RODBC odbcReConnect
 .odbcReOpen <- function(db) {
     cnObj <- GetConn(db)
     nFrame <- sys.nframe()
     tryCatch({
-        return(RODBC::odbcReConnect(cnObj))
+        return(odbcReConnect(cnObj))
     }, error = function(e){
         Clean(db)
         DebugInfo("Check network or access", nFrame)

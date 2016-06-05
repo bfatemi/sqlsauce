@@ -121,7 +121,6 @@ Columns <- function(db="Morpheus", tables="MainLog", return=F, closeConn=T){
     cat("\n\n")
 
     dt <- ColumnInfo(db, tables, closeConn, print = F)
-    dt <- data.table(dt)
 
     set(dt, j=c("Database",
                 "Table",
@@ -134,11 +133,11 @@ Columns <- function(db="Morpheus", tables="MainLog", return=F, closeConn=T){
 }
 
 #' @describeIn TableInfo An internal wrapper around sqlTables
+#' @importFrom RODBC sqlTables
 getTables <- function(db) {
     cnObj <- GetConn(db)
-    nFrame <- sys.nframe()
 
-    dt <- RunCatch(RODBC::sqlTables(channel   = cnObj,
+    dt <- RunCatch(sqlTables(channel   = cnObj,
                                     schema    = "dbo",
                                     tableType = "TABLE"), "Error in getTables")
     dt <- data.table(dt)
@@ -146,11 +145,11 @@ getTables <- function(db) {
 }
 
 #' @describeIn TableInfo An internal wrapper around sqlColumns
+#' @importFrom RODBC sqlColumns
 getColumns <- function(db, tables) {
     cnObj  <- GetConn(db)
-    nFrame <- sys.nframe()
 
-    dt <- RunCatch(RODBC::sqlColumns(channel = cnObj,
+    dt <- RunCatch(sqlColumns(channel = cnObj,
                                      sqtable = tables,
                                      schema  = "dbo"), "Error in getColumns")
     dt <- data.table(dt)
@@ -158,11 +157,11 @@ getColumns <- function(db, tables) {
 }
 
 #' @describeIn TableInfo An internal wrapper around sqlPrimaryKeys
+#' @importFrom RODBC sqlPrimaryKeys
 getPrimaryKey <- function(db, tables) {
     cnObj  <- GetConn(db)
-    nFrame <- sys.nframe()
 
-    dt <- RunCatch(RODBC::sqlPrimaryKeys(channel = cnObj,
+    dt <- RunCatch(sqlPrimaryKeys(channel = cnObj,
                                          sqtable = tables,
                                          schema  = "dbo"), "Error in getPrimaryKey")
     dt <- data.table(dt)

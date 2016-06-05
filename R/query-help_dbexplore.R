@@ -58,13 +58,19 @@ PrimaryKey <- function(db=NULL, tables=NULL, closeConn=F){
     # Helper fn to run through each table iteratively
     f <- function(i){
         tmp <- getPrimaryKey(db, i)
-        data.table::set(tmp, j = dropCols, value = NULL)    # Drop cols by ref
-        data.table::setnames(tmp, keepCols, friendlyName)   # Change to friendly names
+
+        if(nrow(tmp)){
+            data.table::set(tmp, j = dropCols, value = NULL)    # Drop cols by ref
+            data.table::setnames(tmp, keepCols, friendlyName)   # Change to friendly names
+        }
         return(tmp)
     }
 
-    dt <- data.table::rbindlist(lapply(tables, f))
-    data.table::setkeyv(dt, c("Database", "Table"))
+    emsg <- "Error in PrimaryKey()"
+    dt <- RunCatch(data.table::rbindlist(lapply(tables, f)), emsg, emsg)
+
+    emsg <- "Error setting keys in PrimaryKey"
+    RunCatch(data.table::setkeyv(dt, c("Database", "Table")), emsg, emsg)
 
     if(closeConn) CloseDB(db)
     return(dt)
@@ -74,7 +80,7 @@ PrimaryKey <- function(db=NULL, tables=NULL, closeConn=F){
 #'      If argument "tables" not provided, retrive information about all tables in the specified database
 #' @export
 #' @import data.table
-ColumnInfo <- function(db="Morpheus", tables=NULL, closeConn=FALSE, print=TRUE) {
+ColumnInfo <- function(db="Morpheus", tables=NULL, closeConn=FALSE, print=FALSE) {
     dropCols     <- c("TABLE_SCHEM", "DATA_TYPE", "BUFFER_LENGTH",
                       "NUM_PREC_RADIX", "NULLABLE", "REMARKS",
                       "COLUMN_DEF", "SQL_DATA_TYPE","SQL_DATETIME_SUB",

@@ -85,12 +85,9 @@ OpenDB <- function(db=NULL, verbose=F){
 CloseDB <- function(db=NULL, verbose=F) {
     cnName  <- paste0("cn.", db)      # name the connection object
     thisFrame <- sys.nframe()-1       # Get call stack in case of error
-    if(IsClosed(db)){
 
-        print(paste0("Connection to ", db, " already closed"))
-        return(0)
 
-    }else if(IsOpen(db)){
+    if(IsOpen(db)){
         oldObj <- GetConn(db)
         SetConn(object     = oldObj,
                 name       = cnName,
@@ -103,13 +100,9 @@ CloseDB <- function(db=NULL, verbose=F) {
                 closedby   = .CallStack(thisFrame),
                 tClose     = Sys.time(),
                 count      = attr(oldObj, which = "AccessCount"))
-        .odbcClose(db)
-    }else{
-        print(paste0("No open or closed connections exist to ",db))
-        return(0)
+        return(.odbcClose(db))
     }
-    if(verbose) ConnStatus(db)
-    return(1)
+    return(0)
 }
 
 #' @describeIn OpenDB Internal RODBC wrapper

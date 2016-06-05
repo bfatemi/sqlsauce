@@ -11,6 +11,7 @@
 #' @return A data.table with query results
 #' @export
 #' @importFrom RODBC sqlQuery
+#' @import data.table
 xQuery <- function(db, query, time=TRUE) {
 
     # get frame number in case error occurs
@@ -24,11 +25,11 @@ xQuery <- function(db, query, time=TRUE) {
     # remove sci notation (for numerics in query), reset to global onexit
     globscipen <- options()$scipen
     options(scipen = 1000)
-    on.exit(options(scipen = globscipen), add = T)
+    on.exit(options(scipen = globscipen), add = TRUE)
 
     Timer()
-    dt <- data.table(sqlQuery(GetConn(db), query, errors = T)) # start timer
-    dur <- Timer(START = F)
+    dt <- data.table(sqlQuery(GetConn(db), query, errors = TRUE)) # start timer
+    dur <- Timer(START = FALSE)
 
     if(time){
         PrintMessage(paste0("Query completed in: ", dur, " seconds"), content = query)
@@ -45,8 +46,8 @@ xQuery <- function(db, query, time=TRUE) {
                                                 "Check database table name",
                                                 "Check query string"))
 
-        errmsg <- str_extract(dt[1, V1], "(?<=SQL Server]).*$")
-        friendly <- errlookup[which(str_detect(errmsg, ErrorMessage))[1], Description]
+        errmsg <- stringr::str_extract(dt[1, V1], "(?<=SQL Server]).*$")
+        friendly <- errlookup[which(stringr::str_detect(errmsg, ErrorMessage))[1], Description]
         PrintSqlError(errmsg, friendly, nFrame)
     }
 

@@ -30,7 +30,6 @@ GetConn <- function(db){
 
 #' @rdname InternalConnHandling
 #' @inheritParams OpenDB
-#' @export
 SetConn <- function(object     = NULL,
                     name       = NULL,
                     status     = NULL,
@@ -117,7 +116,6 @@ ConnString <- function(db=NULL){
 #' @describeIn InternalConnHandling An internal function to used by connection functions that provide
 #'      all the information used to build the connection string. This is where new connections will be
 #'      configured
-#' @export
 Databases <- function(){
     ll_all <- list(
         ll_Morpheus =

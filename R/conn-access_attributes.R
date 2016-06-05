@@ -32,6 +32,7 @@ AccessInfo <- function(db){
 #' @describeIn AboutConnection Prints verbose information on the current status of specified database. Returns Null
 #' @inheritParams OpenDB
 #' @param nFrame An internally used parameter to provide the developer a traceback of where a connection error occured
+#' @importFrom RODBC odbcGetInfo
 ConnStatus <- function(db=NULL, nFrame=NULL){
 
     # Identify who called for the status (tracing)

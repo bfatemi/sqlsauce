@@ -49,6 +49,7 @@ DebugInfo <- function(msg=NULL, nFrame=NULL){
 }
 
 #' @describeIn DebugInfo A helper function to display sql errors that occur during a query
+#' @import data.table
 PrintSqlError <- function(msg=NULL, friendly=NULL, nFrame=NULL){
     statDT <- data.table(sapply(db, ConnAttr), keep.rownames = T)
     setnames(statDT, c("Database", db))

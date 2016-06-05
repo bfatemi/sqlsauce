@@ -11,6 +11,7 @@
 #' @example /example/ex_dbexplorer.R
 #' @describeIn TableInfo Given a database, get all databases on same server
 #' @export
+#' @import data.table
 TableInfo <- function(db=NULL, closeConn=F, print=F) {
     dropCols     <- c("TABLE_SCHEM", "TABLE_TYPE", "REMARKS")
     keepCols     <- c("TABLE_CAT", "TABLE_NAME")
@@ -22,9 +23,11 @@ TableInfo <- function(db=NULL, closeConn=F, print=F) {
     fn_fetch <- function(i){
         OpenDB(i)                          # OpenDB will check valid db name
         dt <- getTables(i)
-        set(dt, j = dropCols, value = NULL)
-        setnames(dt, friendlyName)
-        setkeyv(dt, c("Database", "Table"))
+
+        data.table::set(dt, j = dropCols, value = NULL)
+        data.table::setnames(dt, friendlyName)
+        data.table::setkeyv(dt, c("Database", "Table"))
+
         return(PrimaryKey(i,dt$Table))
     }
 
@@ -43,6 +46,7 @@ TableInfo <- function(db=NULL, closeConn=F, print=F) {
 #' @describeIn TableInfo A function to retrieve information about one or more table's primary key column
 #' @param tables A character vector of table names belonging to the database specified by "db"
 #' @export
+#' @import data.table
 PrimaryKey <- function(db=NULL, tables=NULL, closeConn=F){
     dropCols     <- c("TABLE_SCHEM", "PK_NAME")
     keepCols     <- c("TABLE_CAT", "TABLE_NAME", "COLUMN_NAME","KEY_SEQ")
@@ -54,13 +58,13 @@ PrimaryKey <- function(db=NULL, tables=NULL, closeConn=F){
     # Helper fn to run through each table iteratively
     f <- function(i){
         tmp <- getPrimaryKey(db, i)
-        set(tmp, j = dropCols, value = NULL)    # Drop cols by ref
-        setnames(tmp, keepCols, friendlyName)   # Change to friendly names
+        data.table::set(tmp, j = dropCols, value = NULL)    # Drop cols by ref
+        data.table::setnames(tmp, keepCols, friendlyName)   # Change to friendly names
         return(tmp)
     }
 
-    dt <- rbindlist(lapply(tables, f))
-    setkey(dt, Database, Table)                # key for merge inside other explore fns
+    dt <- data.table::rbindlist(lapply(tables, f))
+    data.table::setkey(dt, Database, Table)                          # key for merge inside other explore fns
 
     if(closeConn) CloseDB(db)
     return(dt)
@@ -69,6 +73,7 @@ PrimaryKey <- function(db=NULL, tables=NULL, closeConn=F){
 #' @describeIn TableInfo A function to detailed information about a given table's columns.
 #'      If argument "tables" not provided, retrive information about all tables in the specified database
 #' @export
+#' @import data.table
 ColumnInfo <- function(db="Morpheus", tables=NULL, closeConn=F, print=T) {
     dropCols     <- c("TABLE_SCHEM", "DATA_TYPE", "BUFFER_LENGTH",
                       "NUM_PREC_RADIX", "NULLABLE", "REMARKS",
@@ -86,12 +91,13 @@ ColumnInfo <- function(db="Morpheus", tables=NULL, closeConn=F, print=T) {
 
     OpenDB(db)
     dt <- getColumns(db, tables)                     # run query for col names
-    set(dt, j = dropCols, value = NULL)
-    setnames(dt, keepCols, friendlyName)
-    setkey(dt, Database, Table)
+
+    data.table::set(dt, j = dropCols, value = NULL)
+    data.table::setnames(dt, keepCols, friendlyName)
+    data.table::setkey(dt, Database, Table)
 
     # Add Column for IsKey
-    set(dt, j="IsKey", value = "NO")
+    data.table::set(dt, j="IsKey", value = "NO")
 
     pk <- PrimaryKey(db, unique(dt$Table))
     dt[Column %in% pk[, PrimaryKey], IsKey:="YES"]
@@ -115,6 +121,7 @@ ColumnInfo <- function(db="Morpheus", tables=NULL, closeConn=F, print=T) {
 #' @param return A boolean indicating whether to return objects in memory. Defaults to FALSE which means
 #'      information is simply printed on the R console and not captured. Ideal default for quick lookups.
 #' @export
+#' @import data.table
 Columns <- function(db="Morpheus", tables="MainLog", return=F, closeConn=T){
     cat("\nDatabase:", db)
     cat("\nDB Table:", tables)
@@ -122,7 +129,7 @@ Columns <- function(db="Morpheus", tables="MainLog", return=F, closeConn=T){
 
     dt <- ColumnInfo(db, tables, closeConn, print = F)
 
-    set(dt, j=c("Database",
+    data.table::set(dt, j=c("Database",
                 "Table",
                 "ColumnSize",
                 "DecimalDigits",
@@ -134,6 +141,7 @@ Columns <- function(db="Morpheus", tables="MainLog", return=F, closeConn=T){
 
 #' @describeIn TableInfo An internal wrapper around sqlTables
 #' @importFrom RODBC sqlTables
+#' @import data.table
 getTables <- function(db) {
     cnObj <- GetConn(db)
 
@@ -146,6 +154,7 @@ getTables <- function(db) {
 
 #' @describeIn TableInfo An internal wrapper around sqlColumns
 #' @importFrom RODBC sqlColumns
+#' @import data.table
 getColumns <- function(db, tables) {
     cnObj  <- GetConn(db)
 
@@ -158,6 +167,7 @@ getColumns <- function(db, tables) {
 
 #' @describeIn TableInfo An internal wrapper around sqlPrimaryKeys
 #' @importFrom RODBC sqlPrimaryKeys
+#' @import data.table
 getPrimaryKey <- function(db, tables) {
     cnObj  <- GetConn(db)
 

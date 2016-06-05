@@ -70,11 +70,22 @@ Source: CRAN
 Version: 0.3-10
 Hash: 05d7ad64db29a39d1b02c4b9f1f4edb2
 
+Package: stringi
+Source: CRAN
+Version: 0.5-5
+Hash: e7c67668a472e26e0c95bc8fa9049198
+
+Package: stringr
+Source: CRAN
+Version: 1.0.0
+Hash: 2676dd5f88890910962b733b0f9540e1
+Requires: magrittr, stringi
+
 Package: testthat
 Source: CRAN
 Version: 0.10.0
 Hash: e1c29715cb8ae5e023b0b8ad64e308f7
-Requires: digest, crayon, R6, magrittr, praise
+Requires: R6, digest, magrittr, praise, crayon
 
 Package: yaml
 Source: CRAN

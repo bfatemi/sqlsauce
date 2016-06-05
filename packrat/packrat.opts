@@ -8,7 +8,7 @@ external.packages:
     devtools
     testthat
     knitr
-local.repos: ~/Projects/localrepo
+local.repos: 
 load.external.packages.on.startup: TRUE
 ignored.packages: 
 quiet.package.installation: TRUE

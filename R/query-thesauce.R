@@ -17,7 +17,7 @@
 #' @export
 #'
 #' @example /examples/ex_queryworkflow.R
-#' @import data.table
+#' @importFrom data.table data.table
 QuerySauce <- function(tbl=NULL, top=NULL, cols=NULL, where=NULL){
     cols[is.null(cols)] <- "*"
     top[!is.null(top)] <- paste("TOP", top)[!is.null(top)]
@@ -32,7 +32,7 @@ QuerySauce <- function(tbl=NULL, top=NULL, cols=NULL, where=NULL){
 #' @describeIn QuerySauce A function to the WHERE clause that becomes an input into
 #'      \code{QuerySauce}
 #' @export
-#' @import data.table
+#' @importFrom data.table data.table
 WhereSauce <- function(...){
     ll <- substitute(...)
 

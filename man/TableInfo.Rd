@@ -14,17 +14,15 @@ TableInfo(db = NULL, closeConn = FALSE, print = FALSE)
 
 PrimaryKey(db = NULL, tables = NULL, closeConn = F)
 
-ColumnInfo(db = "Morpheus", tables = NULL, closeConn = FALSE,
-  print = TRUE)
+ColumnInfo(db = NULL, tables = NULL, closeConn = FALSE, print = FALSE)
 
-Columns(db = "Morpheus", tables = "MainLog", return = FALSE,
-  closeConn = TRUE)
+Columns(db = NULL, tables = NULL, return = FALSE, closeConn = TRUE)
 
-getTables(db)
+getTables(db = NULL)
 
-getColumns(db, tables)
+getColumns(db = NULL, tables)
 
-getPrimaryKey(db, tables)
+getPrimaryKey(db = NULL, tables)
 }
 \arguments{
 \item{db}{A character value naming the database (e.g. "Morpheus")}

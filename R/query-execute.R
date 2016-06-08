@@ -11,13 +11,13 @@
 #' @return A data.table with query results
 #' @export
 #' @importFrom RODBC sqlQuery
-#' @import data.table
+#' @importFrom data.table data.table
 xQuery <- function(db, query, time=TRUE) {
 
     # get frame number in case error occurs
     nFrame <- sys.nframe()
 
-    if(!IsActive(db) | IsClosed(db)){
+    if(!ConnExists(db)){
         OpenDB(db)              # if user did not open connection, open it
         on.exit(CloseDB(db))    # then close it on exit
     }

@@ -60,7 +60,7 @@ CheckDB <- function(db=NULL){
     )
 }
 
-#' @describeIn AccessInfo
+#' @describeIn AccessInfo internal function
 Databases <- function(){
     ll_all <- list(
         ll_Morpheus =

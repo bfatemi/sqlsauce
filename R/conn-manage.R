@@ -55,8 +55,11 @@ CloseDB <- function(db=NULL) {
     if(status == "Open")
         return(closeConn(db, caller, calltime))
 
-    if(status == "Closed")
+    if(status == "Closed"){
+        warning(paste0("connection to ", db, " already closed"), call.=FALSE)
         return(0)
+    }
+
 }
 
 #' @describeIn ManageConnections See all active (open or closed) connections in the pool

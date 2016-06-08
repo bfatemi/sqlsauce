@@ -4,10 +4,10 @@ print.banner.on.startup: auto
 vcs.ignore.lib: TRUE
 vcs.ignore.src: FALSE
 external.packages:
-    data.table
     devtools
     testthat
     knitr
+    roxygen2
 local.repos: 
 load.external.packages.on.startup: TRUE
 ignored.packages: 

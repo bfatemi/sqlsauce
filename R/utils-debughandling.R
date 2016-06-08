@@ -68,16 +68,26 @@ Timer <- function(START=TRUE, print=FALSE){
 
 #' @describeIn DebugHelp A helper function to extract the relevant and helpful portion of the function callstack
 .CallStack <- function(nFrame){
-    calls <- as.character(sys.calls()[1:nFrame])
-    calls <- gsubfn::gsubfn(replacement = "", x = calls, pattern = "\\(.*\\)")
+    callers <- sys.calls()
+    ss_callers <- unlist(lapply(callers, function(i){
+        currcall <- as.character(i[[1]])
+        nsFuns <- lsp(sqlsauce)
+        if(currcall %in% nsFuns)
+            currcall
+    }))
 
-    if(length(calls)>1){
-        # eliminate all calls past the first "try" call
-        firstTryCall <- grep("try", calls)[1]
-        if(!is.na(firstTryCall))
-            calls <- calls[-(firstTryCall:length(calls))]
-    }
-    paste(calls, collapse = " => ")
+    paste(ss_callers, collapse = " >> ")
+
+    # calls <- as.character(sys.calls()[1:nFrame])
+    # calls <- gsubfn::gsubfn(replacement = "", x = calls, pattern = "\\(.*\\)")
+    #
+    # if(length(calls)>1){
+    #     # eliminate all calls past the first "try" call
+    #     firstTryCall <- grep("try", calls)[1]
+    #     if(!is.na(firstTryCall))
+    #         calls <- calls[-(firstTryCall:length(calls))]
+    # }
+    # paste(calls, collapse = " => ")
 }
 
 #' @describeIn DebugHelp A function to parse the function call stack and identify a caller at the current postion
@@ -194,6 +204,22 @@ RunTimer <- function(code, successMsg=NULL, Catch=FALSE, ...){
     cat(paste0("Duration of call (seconds): ", dur))
 }
 
+
+#' @describeIn DebugHelp A function to retrieve a character list of all
+#'      function names within a given package
+#' @param package expr that is the name of the package
+#' @param all.names A bool
+#' @param pattern A pattern to subset for particular functions
+#' @export
+lsp <- function(package, all.names = FALSE, pattern)
+{
+    package <- deparse(substitute(package))
+    ls(
+        pos = paste("package", package, sep = ":"),
+        all.names = all.names,
+        pattern = pattern
+    )
+}
 
 
 

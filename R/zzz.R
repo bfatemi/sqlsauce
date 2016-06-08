@@ -1,11 +1,10 @@
-#' Title
+#' Internal onattach and onload
 #'
-#' @param libname
-#' @param pkgname
+#' @param libname name of library
+#' @param pkgname name of package
 .onAttach <- function(libname, pkgname) {
-    #packageStartupMessage("Welcome to my package")
-    suppressWarnings(suppressMessages(libname))
-    suppressPackageStartupMessages(libname)
+    suppressWarnings(suppressMessages(pkgname))
+    suppressPackageStartupMessages(pkgname)
 }
 
 # .onLoad <- function(libname, pkgname) {

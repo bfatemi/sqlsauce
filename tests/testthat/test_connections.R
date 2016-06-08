@@ -1,98 +1,138 @@
 
-# Common developer helper functions #
-db <- "Morpheus"
-CheckDB(db)     # trys to find a matching database name, returns error if not
-AccessInfo(db)  # access info for specified db
-ValidDB()       # What DBs are configured in the package?
-ConnString(db)  # Connection string for db?
 
-# Opening/Closing Connections #
-OpenDB(db)      # Returns 1 on success
-CloseDB(db)     # Returns 1 on success
-CloseDB(db)     # Warning if closing db that is already closed
-CloseDB("blah") # Error if db doesn't exist
+test_that("Lookup functions", {
+    db <- "Morpheus"
+    expect_equal(CheckDB(db),   "Morpheus")  # trys to find a matching database name, returns error if not
+    expect_type(AccessInfo(db), "list")      # access info for specified db
+    expect_type(ValidDB(),      "character") # What DBs are configured in the package?
+    expect_type(ConnString(db), "character") # Connection string for db?
+})
 
-# Manage connections #
-ConnExists(db)  # Returns TRUE for any open/closed connections
-ConnPool()      # Returns all the connection (names) in the pool
-ConnStatus()    # Returns a table showing status for all configured dbs
+OpenCloseAttr <- function(db){
 
-# Use should be rare to not at all #
-GetConn(db)     # Retrieve connection object
-Clean(db)       # Removes connection from pool (usually because of error)
-Clean()         # Removes ALL connections from pool (usually because of error)
+    opentest <- function(db){
+        expect_identical(OpenDB(db), 1)
+        expect_identical(SeeConn(db)[Names=="Status", Values], "Open")
+        expect_identical(ConnStatus()[Database == db, Status], "Open")
+        expect_identical(ConnStatus(db), "Open")
+        expect_identical(class(SeeConn(db, "TimeInitiated")), "character")
+        expect_identical(class(SeeConn(db, "TimeOpened")), "character")
+    }
+    opentest(db)
 
+    closetest <- function(db){
+        expect_identical(CloseDB(db), 1)
+        expect_identical(SeeConn(db)[Names=="Status", Values], "Closed")
+        expect_identical(ConnStatus()[Database == db, Status], "Closed")
+        expect_identical(ConnStatus(db), "Closed")
+        expect_identical(class(SeeConn(db, "TimeInitiated")), "character")
+        expect_identical(class(SeeConn(db, "TimeOpened")), "character")
+        expect_identical(class(SeeConn(db, "TimeClosed")), "character")
+    }
+    closetest(db)
+    expect_equal(Clean(), 1)
 
+    time <- Sys.time()
+    expect_equal(OpenDB(db), 1)
+    expect_equal(ConnPool(), db)                        # Returns all the connection (names) in the pool
+    expect_true(ConnExists(db))
+    expect_error(ConnExists("blah"), "Not valid DB!")
+    expect_type(ListConnAttr(), "character")
 
-SeeConn(db, "Initiator") # Get specified attributes about a connection object
-SeeConn(db)              # Get ALL attributes about a connection object
+    expect_identical(SeeConn(db, "Database"),   db)
+    expect_identical(SeeConn(db, "Status"),     "Open")
+    expect_identical(SeeConn(db, "Status"),     ConnStatus(db))
+    expect_identical(SeeConn(db, "Initiator"),  "OpenDB")
+    expect_identical(SeeConn(db, "Opener"),     "OpenDB")
+    expect_identical(SeeConn(db, "Closer"),     NA)
+    expect_identical(SeeConn(db, "Requestor"),  NA)
 
-SeeOpenConns()           # See attributes for every open connection
-SeeClosedConns()         # See attributes for every closed connection
+    # expecting time opened to be close to time declared above
+    expect_lt(abs(as.numeric(difftime(SeeConn(db, "TimeOpened"), time, units = "sec"))),1.5)
 
+    # expecting time since initiated to be diff until now
+    tdiff   <- abs(as.numeric(difftime(SeeConn(db, "TimeInitiated"),
+                                       Sys.time(), units="sec")))
+    attrdur <- SeeConn(db, "DurSinceInit")
+    tdiff2 <- SeeConn(db)[Names=="DurSinceInit", Values]
+    expect_lt(abs(abs(tdiff) - abs(as.numeric(tdiff2))), 1.5)
+    expect_lt(abs(abs(tdiff) - as.numeric(attrdur)), 1.5)
 
+    # expecting time requested to be close to be diff until new request now
+    reqtime <- Sys.time()
+    expect_equal(OpenDB(db), 1)
+    expect_identical(SeeConn(db, "Status"), "Open")
+    expect_lt(abs(as.numeric(difftime(SeeConn(db, "TimeRequested"), reqtime, units = "sec"))),1.5)
+    expect_identical(SeeConn(db, "AccessCount"), 2)
 
-skip_on_cran()
+    # Close and Reopen to check attributes that should have updated
+    Sys.sleep(3) # sleep for 5 seconds so time closed is an observable amount
+    # of seconds later than time initiated
 
+    tclose <- Sys.time()
+    expect_identical(CloseDB(db), 1)
 
-ColumnInfo()
-Columns(db)
-
-
-
-
-
-
-PrimaryKey(db)
-QuerySauce()
-
-TableInfo(db)
-WhereSauce()
-xQuery()
-
-# Expect error to say "SQL Server does not exist or access denied"
-db <- "Morpheus"
-cnstr <- ConnString(db)
-emsg <- "CONNECTION FAILED"
-smsg <- "CONNECTION ESTABLISHED"
-pat <- ".*(?<=])"
-
-sqlsauce::RunTimer(
-    RODBC::odbcDriverConnect(cnstr, readOnlyOptimize = T),
-    successMsg = smsg,
-    Catch = TRUE,
-    emsg = "Error happened stupid",
-    wmsg = emsg,
-    patter = pat
-)
-
-
-# Expect error to say "SQL Server does not exist or access denied"
-db <- "blah"
-cnstr <- ConnString(db)
-emsg <- "CONNECTION FAILED"
-pat <- ".*(?<=])"
-
-sqlsauce::RunTimer(
-    RODBC::odbcDriverConnect(cnstr, readOnlyOptimize = T),
-    successMsg = smsg,
-    Catch = TRUE,
-    emsg = "Error happened stupid",
-    wmsg = emsg,
-    patter = pat
-)
+    # duration between TimeRequested and TimeClosed should be about 5 seconds
+    expect_lt(abs(as.numeric(difftime(SeeConn(db, "TimeClosed"),
+                              SeeConn(db, "TimeRequested"),
+                              units = "sec"))), 4)
 
 
-# Expect error to say "Data source name not found and no default driver specified "
-cnstr <- "blah"
-emsg <- "Error happened stupid"
-pat <- ".*(?<=])"
+    expect_identical(CloseDB(db), 0)
+    expect_warning(CloseDB(db))
 
-sqlsauce::RunTimer(
-    RODBC::odbcDriverConnect(cnstr, readOnlyOptimize = T),
-    successMsg = smsg,
-    Catch = TRUE,
-    emsg = "Error happened stupid",
-    wmsg = emsg,
-    patter = pat
-)
+
+
+    expect_identical(SeeConn(db, "Status"),     "Closed")
+    expect_identical(SeeConn(db, "Status"),     ConnStatus(db))
+
+    expect_identical(SeeConn(db, "Closer"),     "CloseDB")
+    expect_identical(SeeConn(db, "Requestor"),  "OpenDB")
+    expect_identical(SeeConn(db, "DurationOpen"), 0)
+
+    expect_lt(abs(as.numeric(difftime(SeeConn(db, "TimeClosed"), tclose, units="sec"))),1.5)
+
+
+    tdiff   <- abs(as.numeric(difftime(SeeConn(db, "TimeRequested"),
+                                       Sys.time(), units="sec")))
+    attrdur <- SeeConn(db, "DurSinceRequest")
+    tdiff2 <- SeeConn(db)[Names=="DurSinceRequest", Values]
+    expect_lt(abs(abs(tdiff) - abs(as.numeric(tdiff2))), 1.5)
+    expect_lt(abs(abs(tdiff) - as.numeric(attrdur)), 1.5)
+
+    tdiff   <- abs(as.numeric(difftime(SeeConn(db, "TimeClosed"),
+                                       Sys.time(), units="sec")))
+    attrdur <- SeeConn(db, "DurationClosed")
+    tdiff2 <- SeeConn(db)[Names=="DurationClosed", Values]
+    expect_lt(abs(abs(tdiff) - abs(as.numeric(tdiff2))), 1.5)
+    expect_lt(abs(abs(tdiff) - as.numeric(attrdur)), 1.5)
+
+
+    # Ensure attributes for old conn object are same as new one
+    oldcnObj <- GetConn(db)
+    expect_identical(class(oldcnObj), "RODBC")
+
+    # get old attr
+    oldvals <- sapply(ListConnAttr(), attr, x=oldcnObj)
+    oldnames <- names(oldvals)
+
+    # new obj
+    opentest(db)
+    newcnObj <- GetConn(db)
+    newvals <- sapply(ListConnAttr(), attr, x=newcnObj)
+    newnames <- names(newvals)
+    closetest(db)
+    Clean()
+}
+
+
+test_that("Open/Close Connections", {
+    dbs <- ValidDB()
+    expect_warning(OpenCloseAttr(dbs[[1]]), "already closed")
+    expect_warning(OpenCloseAttr(dbs[[2]]), "already closed")
+    expect_warning(OpenCloseAttr(dbs[[3]]), "already closed")
+    expect_warning(OpenCloseAttr(dbs[[4]]), "already closed")
+})
+
+
+

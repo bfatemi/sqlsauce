@@ -67,10 +67,34 @@ SeeConn <- function(db=NULL, what=NULL){
     cnObj <- GetConn(db)
 
     if(!is.null(what)){
+
+        # Update durations only if attributes are requested
+        #
+        if(what == "DurSinceInit")
+            return(as.character(xtimetaken(attr(cnObj, "TimeInitiated"))))
+
+        if(what == "DurSinceRequest")
+            return(as.character(xtimetaken(attr(cnObj, "TimeRequested"))))
+
+        if(what == "DurationOpen"){
+            if(attr(cnObj, "Status") == "Closed")
+                return(0)
+            else
+                return(as.character(xtimetaken(attr(cnObj, "TimeOpened"))))
+        }
+
+        if(what == "DurationClosed"){
+            if(attr(cnObj, "Status") == "Open")
+                return(0)
+            else
+                return(as.character(xtimetaken(attr(cnObj, "TimeClosed"))))
+        }
+
         att <- attr(cnObj, which = what)
 
         if(is.null(att))
             warning("Not a recorded attribute. Check attribute name")
+
     }else{
         att <- attributes(cnObj)
         att <- data.table(Names = ListConnAttr(),
@@ -156,7 +180,10 @@ SeeClosedConns <- function(){
 #' @describeIn ConnectionAttributes Prints status of all connection in the pool
 #' @export
 #' @importFrom data.table data.table rbindlist
-ConnStatus <- function(){
+ConnStatus <- function(db=NULL){
+
+    if(!is.null(db))
+        return(SeeConn(db, "Status"))
 
     alldb <- ValidDB()
     allinPool <- ConnPool()
@@ -169,7 +196,7 @@ ConnStatus <- function(){
         cnObj <- GetConn(db)
         data.table(Database = db, Status = attr(cnObj, "Status"))
     })
-    rbindlist(c(activell, inactivell))
+    return(rbindlist(c(activell, inactivell)))
 }
 
 #' @describeIn ConnectionAttributes A function that provides a quick lookup of

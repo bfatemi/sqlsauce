@@ -2,13 +2,18 @@ Package: sqlsauce
 Title: The Secret Sauce for Dishing Data
 Version: 0.0.0.9000
 Authors@R: person("Bobby", "Fatemi", email = "bfatemi07@gmail.com", role = c("aut", "cre"))
-Description: Contains functionalities to simplify connections to a sql database, convenience wrappers around popular functions from the package RODBC, and utility functions that streamline the SQL to R workflow.
+Description: Contains functionalities to simplify connections to a sql database,
+    convenience wrappers around popular functions from the package RODBC, and
+    utility functions that streamline the SQL to R workflow.
 Depends:
     R (>= 3.2.2)
-Imports: stringr,
+Imports:
+    stringr,
     gsubfn,
     RODBC,
     data.table
 License: MIT + file LICENSE
 LazyData: true
-Suggests: testthat
+Suggests:
+    testthat
+RoxygenNote: 5.0.1

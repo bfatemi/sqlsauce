@@ -5,10 +5,19 @@
 \alias{InternalConnHandling}
 \alias{closeConn}
 \alias{cn.env}
+\alias{initConn}
+\alias{openConn}
+\alias{requestConn}
 \title{ConnectionHandlers}
 \format{An object of class \code{environment} of length 0.}
 \usage{
 cn.env
+
+initConn(db, caller, ts)
+
+requestConn(db, caller, ts)
+
+openConn(db, caller, ts)
 
 closeConn(db, caller, ts)
 }
@@ -24,6 +33,12 @@ Internal functions to get/set connection objects and attributes
 }
 \section{Functions}{
 \itemize{
+\item \code{initConn}: internal function to initiate a connection
+
+\item \code{requestConn}: internal function to request an open connection
+
+\item \code{openConn}: internal function to open a closed connection
+
 \item \code{closeConn}: internal function to close an open connection
 }}
 \keyword{datasets}

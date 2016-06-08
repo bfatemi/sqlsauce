@@ -7,24 +7,23 @@
 #' Internal functions not intended to be used by developers.
 #'
 #' @name DebugHelp
-#' @param msg A message to be displayed with an error
+#' @param msg A character string representing the message to display within the banner
 #' @param nFrame A numeric value representing an index for a frame in the function callstack
 #' @param friendly A friendly description of the error message to be displayed
-NULL
+time.env <- new.env(parent = emptyenv())
 
 #' @describeIn DebugHelp A helper function to display sql errors that occur during a query
 #' @importFrom data.table data.table setnames
 PrintSqlError <- function(msg=NULL, friendly=NULL, nFrame=NULL){
-    statDT <- data.table(sapply(db, ConnAttr), keep.rownames = TRUE)
-    setnames(statDT, c("Database", db))
-
+    # statDT <- data.table(sapply(db, ConnAttr), keep.rownames = TRUE)
+    # setnames(statDT, c("Database", db))
 
     ErrorInfo <- list(SQLError    = msg,
                       ErrDesc     = friendly,
                       OccurredIn  = gsub("\\(.*\\)", "", sys.calls()[nFrame]),
                       TraceBack   = .CallStack(nFrame))
-    Connection <- as.list(statDT$RemoteFE)
-    names(Connection) <- statDT$Database
+    # Connection <- as.list(statDT$RemoteFE)
+    # names(Connection) <- statDT$Database
 
     environments <- list(ErrorEnv = capture.output(str(sys.frame(nFrame))),
                          ConnectionEnv = capture.output(str(cn.env)))
@@ -47,6 +46,7 @@ xtimetaken <- function(time){
     return(round(as.numeric(difftime(Sys.time(), time, units = "sec")), 1))
 }
 
+
 #' @describeIn DebugHelp A helper function to assist timing operations
 #' @param START A boolean value representing whether to start the timer or end the timer. START = FALSE
 #'      will display the timer information
@@ -54,9 +54,10 @@ xtimetaken <- function(time){
 #'      value representing the duration in seconds
 Timer <- function(START=TRUE, print=FALSE){
     if(START){
-        tstamp <<- Sys.time()
+        tmp <- Sys.time()
+        assign("tstamp",tmp, time.env)
     }else{
-        dur <- round(as.numeric(difftime(Sys.time(), tstamp, units = "sec")), 2)
+        dur <- round(as.numeric(difftime(Sys.time(), get("tstamp", time.env), units = "sec")), 2)
 
         if(print){
             cat(paste0("Completed duration (sec): ", round(dur, 2)))
@@ -71,10 +72,13 @@ Timer <- function(START=TRUE, print=FALSE){
     callers <- sys.calls()
     ss_callers <- unlist(lapply(callers, function(i){
         currcall <- as.character(i[[1]])
-        nsFuns <- lsp(sqlsauce)
+        nsFuns <- ls("package:sqlsauce")
+
+
         if(currcall %in% nsFuns)
             currcall
     }))
+
 
     paste(ss_callers, collapse = " >> ")
 
@@ -103,7 +107,6 @@ Timer <- function(START=TRUE, print=FALSE){
 
 
 #' @describeIn DebugHelp A function to elegantly print a notification banner on the console
-#' @param msg A character string representing the message to display within the banner
 #' @param sym A character symbol used to create the banner
 #' @param content An optional object to print below the banner
 #' @export
@@ -186,7 +189,6 @@ RunCatch <- function(code, emsg = NULL, wmsg = NULL, mmsg = NULL, pattern=NULL){
 
 
 #' @describeIn DebugHelp A function to assist in timing code execution
-#' @param code The code to run
 #' @param successMsg A message to display after successful execution
 #' @param Catch A boolean indicating whether to run the code using RunCatch
 #' @param ... Arguments to pass to RunCatch if boolean \code{Catch} is provided as TRUE
@@ -205,21 +207,20 @@ RunTimer <- function(code, successMsg=NULL, Catch=FALSE, ...){
 }
 
 
-#' @describeIn DebugHelp A function to retrieve a character list of all
-#'      function names within a given package
-#' @param package expr that is the name of the package
-#' @param all.names A bool
-#' @param pattern A pattern to subset for particular functions
-#' @export
-lsp <- function(package, all.names = FALSE, pattern)
-{
-    package <- deparse(substitute(package))
-    ls(
-        pos = paste("package", package, sep = ":"),
-        all.names = all.names,
-        pattern = pattern
-    )
-}
+# #' @describeIn DebugHelp A function to retrieve a character list of all
+# #'      function names within a given package
+# #' @param package expr that is the name of the package
+# #' @param all.names A bool
+# #' @param pattern A pattern to subset for particular functions
+# lsp <- function(package, all.names = FALSE, pattern)
+# {
+#     package <- deparse(substitute(package))
+#     ls(
+#         pos = paste("package", package, sep = ":"),
+#         all.names = all.names,
+#         pattern = pattern
+#     )
+# }
 
 
 

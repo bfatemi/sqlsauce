@@ -15,7 +15,7 @@ NULL
 
 #' @describeIn ManageConnections Open connection to a given database. Returns 1 on success
 #' @export
-OpenDB <- function(db=NULL, verbose=F){
+OpenDB <- function(db=NULL){
     db     <- CheckDB(db)          # Check name against stored valid names
     nFrame <- sys.nframe()-1       # Get call stack in case of error
 

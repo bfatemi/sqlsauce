@@ -59,6 +59,7 @@ If argument "tables" not provided, retrive information about all tables in the s
 \item \code{getPrimaryKey}: An internal wrapper around sqlPrimaryKeys
 }}
 \examples{
+\dontrun{
 # Let's explore what data is available in Morpheus
 
 # Available tables?
@@ -77,7 +78,6 @@ ColumnInfo(tables = "MainLog")
 # Shortcuts/quick view
 Columns()
 Columns(table = "ProcedureSummaries")
-
-
+}
 }
 

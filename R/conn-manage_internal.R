@@ -8,7 +8,7 @@
 #' @param ts internal timestamp
 cn.env <- new.env(parent = emptyenv())
 
-#' @describeIn ManageConnections internal function to initiate a connection
+#' @describeIn InternalConnHandling internal function to initiate a connection
 #' @importFrom RODBC odbcDriverConnect
 initConn <- function(db, caller, ts){
     cnName <- paste0("cn.", db)
@@ -47,7 +47,7 @@ initConn <- function(db, caller, ts){
     return(1)
 }
 
-#' @describeIn ManageConnections internal function to request an open connection
+#' @describeIn InternalConnHandling internal function to request an open connection
 #' @importFrom data.table setattr
 requestConn <- function(db, caller, ts){
     conn <- GetConn(db)
@@ -59,7 +59,7 @@ requestConn <- function(db, caller, ts){
     return(1)
 }
 
-#' @describeIn ManageConnections internal function to open a closed connection
+#' @describeIn InternalConnHandling internal function to open a closed connection
 #' @importFrom RODBC odbcReConnect
 #' @importFrom data.table setattr
 openConn <- function(db, caller, ts){

@@ -13,6 +13,7 @@
 #'      provided, all columns will be returned
 #' @param where The output from a call to WhereSauce. A character string representing
 #'      a valid where clause
+#' @param ... Arguments to create the WHERE statement
 #'
 #' @export
 #'

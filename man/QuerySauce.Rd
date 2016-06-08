@@ -20,6 +20,8 @@ provided, all columns will be returned}
 
 \item{where}{The output from a call to WhereSauce. A character string representing
 a valid where clause}
+
+\item{...}{Arguments to create the WHERE statement}
 }
 \description{
 The function \code{QuerySauce} and it's helper \code{WhereSauce} provide the

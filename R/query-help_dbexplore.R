@@ -32,7 +32,7 @@
 #' @describeIn TableInfo Given a database, get all databases on same server
 #' @export
 #' @importFrom data.table data.table set setnames setkeyv rbindlist
-TableInfo <- function(db=NULL, closeConn=FALSE, print=FALSE) {
+TableInfo <- function(db=NULL, print=FALSE) {
     dropCols     <- c("TABLE_SCHEM", "TABLE_TYPE", "REMARKS")
     keepCols     <- c("TABLE_CAT", "TABLE_NAME")
     friendlyName <- c("Database",  "Table")
@@ -59,7 +59,7 @@ TableInfo <- function(db=NULL, closeConn=FALSE, print=FALSE) {
         print(res[1:min(15,nrow(res)),], row.names = FALSE)
     }
 
-    if(closeConn) CloseDB(db)
+    CloseDB(db)
     return(res)
 }
 
@@ -67,13 +67,14 @@ TableInfo <- function(db=NULL, closeConn=FALSE, print=FALSE) {
 #' @param tables A character vector of table names belonging to the database specified by "db"
 #' @export
 #' @importFrom data.table data.table set setnames setkeyv rbindlist
-PrimaryKey <- function(db=NULL, tables=NULL, closeConn=F){
+PrimaryKey <- function(db=NULL, tables=NULL){
     dropCols     <- c("TABLE_SCHEM", "PK_NAME")
     keepCols     <- c("TABLE_CAT", "TABLE_NAME", "COLUMN_NAME","KEY_SEQ")
     friendlyName <- c("Database", "Table", "PrimaryKey", "PK_Position")
 
     OpenDB(db)
     if(is.null(tables)) tables <- TableInfo(db)[, unique(Table)]
+
 
     # Helper fn to run through each table iteratively
     f <- function(i){
@@ -92,7 +93,7 @@ PrimaryKey <- function(db=NULL, tables=NULL, closeConn=F){
     emsg <- "Error setting keys in PrimaryKey"
     RunCatch(setkeyv(dt, c("Database", "Table")), emsg, emsg)
 
-    if(closeConn) CloseDB(db)
+    CloseDB(db)
     return(dt)
 }
 
@@ -138,7 +139,7 @@ ColumnInfo <- function(db=NULL, tables=NULL, closeConn=FALSE, print=FALSE) {
             cat("--------------------- TRUNCATED ---------------------\n")
     }
 
-    if(closeConn) CloseDB(db)
+    #CloseDB(db) #primary key closes this
     return(dt)
 }
 

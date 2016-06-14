@@ -70,28 +70,18 @@ Timer <- function(START=TRUE, print=FALSE){
 #' @describeIn DebugHelp A helper function to extract the relevant and helpful portion of the function callstack
 .CallStack <- function(nFrame){
     callers <- sys.calls()
+
+    i <- callers
+
     ss_callers <- unlist(lapply(callers, function(i){
         currcall <- as.character(i[[1]])
         nsFuns <- ls("package:sqlsauce")
 
+        currcall <- stringr::str_replace(currcall, "sqlsauce::", "")
 
-        if(currcall %in% nsFuns)
-            currcall
+        currcall[which(currcall %in% nsFuns)]
     }))
-
-
     paste(ss_callers, collapse = " >> ")
-
-    # calls <- as.character(sys.calls()[1:nFrame])
-    # calls <- gsubfn::gsubfn(replacement = "", x = calls, pattern = "\\(.*\\)")
-    #
-    # if(length(calls)>1){
-    #     # eliminate all calls past the first "try" call
-    #     firstTryCall <- grep("try", calls)[1]
-    #     if(!is.na(firstTryCall))
-    #         calls <- calls[-(firstTryCall:length(calls))]
-    # }
-    # paste(calls, collapse = " => ")
 }
 
 #' @describeIn DebugHelp A function to parse the function call stack and identify a caller at the current postion

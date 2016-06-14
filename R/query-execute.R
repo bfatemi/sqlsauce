@@ -12,15 +12,13 @@
 #' @export
 #' @importFrom RODBC sqlQuery
 #' @importFrom data.table data.table
-xQuery <- function(db, query, time=TRUE) {
+xQuery <- function(db, query, time=FALSE) {
+
+    OpenDB(db)              # if user did not open connection, open it
+    on.exit(CloseDB(db))    # then close it on exit
 
     # get frame number in case error occurs
     nFrame <- sys.nframe()
-
-    if(!ConnExists(db)){
-        OpenDB(db)              # if user did not open connection, open it
-        on.exit(CloseDB(db))    # then close it on exit
-    }
 
     # remove sci notation (for numerics in query), reset to global onexit
     globscipen <- options()$scipen
@@ -28,7 +26,7 @@ xQuery <- function(db, query, time=TRUE) {
     on.exit(options(scipen = globscipen), add = TRUE)
 
     Timer()
-    dt <- data.table(sqlQuery(GetConn(db), query, errors = TRUE)) # start timer
+    dt <- data.table(sqlQuery(GetConn(db), query, errors = TRUE))
     dur <- Timer(START = FALSE)
 
     if(time){
@@ -56,5 +54,8 @@ xQuery <- function(db, query, time=TRUE) {
 
     return(dt)
 }
+
+#' @export
+dataDish <- xQuery
 
 

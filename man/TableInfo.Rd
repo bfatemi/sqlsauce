@@ -10,9 +10,9 @@
 \alias{getTables}
 \title{Tools to explore the tables or columns in a database}
 \usage{
-TableInfo(db = NULL, closeConn = FALSE, print = FALSE)
+TableInfo(db = NULL, print = FALSE)
 
-PrimaryKey(db = NULL, tables = NULL, closeConn = F)
+PrimaryKey(db = NULL, tables = NULL)
 
 ColumnInfo(db = NULL, tables = NULL, closeConn = FALSE, print = FALSE)
 
@@ -27,11 +27,11 @@ getPrimaryKey(db = NULL, tables)
 \arguments{
 \item{db}{A character value naming the database (e.g. "Morpheus")}
 
-\item{closeConn}{A boolean indicating whether this function to close the connection to "db". Default is TRUE.}
-
 \item{print}{A boolean indicating whether to print information on the R console}
 
 \item{tables}{A character vector of table names belonging to the database specified by "db"}
+
+\item{closeConn}{A boolean indicating whether this function to close the connection to "db". Default is TRUE.}
 
 \item{return}{A boolean indicating whether to return objects in memory. Defaults to FALSE which means
 information is simply printed on the R console and not captured. Ideal default for quick lookups.}

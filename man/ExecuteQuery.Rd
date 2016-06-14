@@ -4,7 +4,7 @@
 \alias{xQuery}
 \title{Execute a sql query on the database}
 \usage{
-xQuery(db, query, time = TRUE)
+xQuery(db, query, time = FALSE)
 }
 \arguments{
 \item{db}{A database to send a query to and retrieve data from}

@@ -14,6 +14,7 @@
 #' @param where The output from a call to WhereSauce. A character string representing
 #'      a valid where clause
 #' @param ... Arguments to create the WHERE statement
+#' @param verbose A boolean indicating whether to print the constructed query
 #'
 #' @export
 #'
@@ -52,14 +53,15 @@
 #' }
 #'
 #' @importFrom data.table data.table
-QuerySauce <- function(tbl=NULL, top=NULL, cols=NULL, where=NULL){
+QuerySauce <- function(tbl=NULL, top=NULL, cols=NULL, where=NULL, verbose=FALSE){
     cols[is.null(cols)] <- "*"
     top[!is.null(top)] <- paste("TOP", top)[!is.null(top)]
     cols <- paste(cols, collapse=",\n\t")
 
     sauce <- paste("SELECT", top, cols, "\nFROM", tbl, where, "\n")
 
-    PrintMessage("Generated Query", content = sauce)
+    if(verbose)
+        PrintMessage("Generated Query", content = sauce)
     return(sauce)
 }
 
@@ -71,33 +73,71 @@ WhereSauce <- function(...){
     ll <- substitute(...)
 
     # lookup table for valid R -> query operators
-    opsDT <- data.table(validops = c("|", "||", "&", "&&", "<>", "><",">", "<", "<=", ">=", "=="),
-                        querytext = c("OR", "OR", "AND", "AND", "NOT", "NOT",">", "<", "<=", ">=", "="))
+    opsDT <- OpsDT()
 
-    QueryTree <- function(ll){
-        if(length(ll)==0)
-            stop("condition length 0", call. = F)
-
-        ind <- which(opsDT$validops %in% as.character(ll[[1]]))
-        qlogical <- opsDT[ind, querytext]
-
-        # elements to the left and right of the operator we just pulled out
-        rElement <- ll[-1][[length(ll[-1])]]
-        lElement <- ll[-1][[1]]
-
-
-        if(length(lElement) == 1 | grepl("^Year(.+)$", deparse(lElement), perl = T)[1]){
-            lElement <- deparse(lElement)
-            if(length(eval(rElement)) == 1)
-                ret <- paste0(lElement, " ", qlogical, " '", eval(rElement), "'")
-            else
-                ret <- paste0(lElement, " IN ('",
-                              paste(eval(rElement), collapse = "','"), "')\n")
-            return(ret)
-        }
-        return(paste(QueryTree(lElement), qlogical, QueryTree(rElement)))
-    }
 
     sauce <- paste0("\nWHERE ", QueryTree(ll))
     return(sauce)
 }
+
+#' @describeIn QuerySauce Function to translate R operators to sql ones
+#' @importFrom data.table data.table
+OpsDT <- function(){
+    ops <- data.table(validops = c("|", "||", "&", "&&", "<>", "><",">", "<", "<=", ">=", "=="),
+               querytext = c("OR", "OR", "AND", "AND", "NOT", "NOT",">", "<", "<=", ">=", "="))
+    return(ops)
+}
+
+#' @describeIn QuerySauce Function to build query
+#' @export
+#' @importFrom data.table data.table
+QueryTree <- function(ll){
+    if(length(ll)==0)
+        stop("condition length 0", call. = F)
+
+    opsDT <- OpsDT()
+
+    ind <- which(opsDT$validops %in% as.character(ll[[1]]))
+    qlogical <- opsDT[ind, querytext]
+
+    # elements to the left and right of the operator we just pulled out
+    rElement <- ll[-1][[length(ll[-1])]]
+    lElement <- ll[-1][[1]]
+
+
+    if(length(lElement) == 1 | grepl("^Year(.+)$", deparse(lElement), perl = T)[1]){
+        lElement <- deparse(lElement)
+        if(length(eval(rElement)) == 1)
+            ret <- paste0(lElement, " ", qlogical, " '", eval(rElement), "'")
+        else
+            ret <- paste0(lElement, " IN ('",
+                          paste(eval(rElement), collapse = "','"), "')\n")
+        return(ret)
+    }
+    return(paste(QueryTree(lElement), qlogical, QueryTree(rElement)))
+}
+
+
+#' @describeIn QuerySauce A function to retrieve the column names associated with the
+#'      expressions given in the WhereSauce args
+#' @export
+ColSauce <- function(...){
+    slice <- eval(substitute(alist(...)))
+
+    f <- function(ll){
+        if(length(ll)==0) stop("condition length 0", call. = F)
+
+        lElement <- ll[-1][[1]]
+        if(length(lElement) == 1)
+            return(lElement)
+
+        return(f(lElement))
+    }
+    return(lapply(slice, f))
+}
+
+#' @export
+querySauce <- QuerySauce
+
+#' @export
+whereSauce <- WhereSauce

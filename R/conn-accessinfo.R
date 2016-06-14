@@ -69,12 +69,6 @@ Databases <- function(){
                  database = "Morpheus",
                  usr      = ";trusted_connection=true",
                  pw       = NULL),
-        # ll_MorpheusDev =
-        #     list(driver   = "SQL Server",
-        #          server   = "sccdsql01.dv.local,1515",
-        #          database = "Morpheus",
-        #          usr      = ";uid=MorpheusAdmin",
-        #          pw       = ";pwd=MorpheusAdmin2015"),
         ll_RemoteFE =
             list(driver   = "SQL Server",
                  server   = "snganalytics\\db1",
@@ -87,11 +81,17 @@ Databases <- function(){
                  database = "ProcedureCategorization",
                  usr      = ";trusted_connection=true",
                  pw       = NULL),
-        ll_USMOperationsDB =
+        ll_ManufacturingMetrics =
             list(driver   = "SQL Server",
                  server   = "snganalytics\\db1",
-                 database = "USMOperationsDB",
+                 database = "ManufacturingMetrics",
                  usr      = ";uid=USMUser",
-                 pw       = ";pwd=USMUser2016#!"))
+                 pw       = ";pwd=USMUser2016#!"),
+        ll_SAP =
+            list(driver   = "SQL Server",
+                 server   = "snganalytics\\db1",
+                 database = "SAP",
+                 usr      = ";trusted_connection=true",
+                 pw       = NULL))
     return(ll_all)
 }

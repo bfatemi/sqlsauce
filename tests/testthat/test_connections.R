@@ -1,6 +1,12 @@
 
+check_access <- function() {
+    skip_on_travis("Skipping connection testing")
+}
+
 
 test_that("Lookup functions", {
+    check_access()
+
     db <- "Morpheus"
     expect_equal(CheckDB(db),   "Morpheus")  # trys to find a matching database name, returns error if not
     expect_type(AccessInfo(db), "list")      # access info for specified db
@@ -127,6 +133,8 @@ OpenCloseAttr <- function(db){
 
 
 test_that("Open/Close Connections", {
+
+    check_access()
     dbs <- ValidDB()
     expect_warning(OpenCloseAttr(dbs[[1]]), "already closed")
     expect_warning(OpenCloseAttr(dbs[[2]]), "already closed")

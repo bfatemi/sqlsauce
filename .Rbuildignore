@@ -6,3 +6,4 @@
 ^Old/
 ^examples/
 ^\.travis\.yml$
+^AddDB/

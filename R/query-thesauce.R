@@ -5,7 +5,6 @@
 #'
 #' FILL IN DETAIL HERE. See example workflows
 #'
-#' @describeIn QuerySauce A function to build the query
 #' @param tbl A character string that represents the sql tablename to query
 #' @param top A numeric value indicating whether to return the top N rows from the
 #'      query execution
@@ -52,6 +51,7 @@
 #' CloseDB(db) # Close connection
 #' }
 #'
+#' @describeIn QuerySauce A function to build the query
 #' @importFrom data.table data.table
 QuerySauce <- function(tbl=NULL, top=NULL, cols=NULL, where=NULL, verbose=FALSE){
     cols[is.null(cols)] <- "*"
@@ -89,6 +89,7 @@ OpsDT <- function(){
 }
 
 #' @describeIn QuerySauce Function to build query
+#' @param ll A list object that wraps the R expressions in order to translate to sql where conditions
 #' @export
 #' @importFrom data.table data.table
 QueryTree <- function(ll){
@@ -136,8 +137,10 @@ ColSauce <- function(...){
     return(lapply(slice, f))
 }
 
+#' @describeIn QuerySauce An alias to QuerySauce
 #' @export
-querySauce <- QuerySauce
+Qsauce <- QuerySauce
 
+#' @describeIn QuerySauce An alias to WhereSauce
 #' @export
-whereSauce <- WhereSauce
+Wsauce <- WhereSauce

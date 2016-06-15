@@ -1,7 +1,8 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
 language: R
-sudo: true
+warnings_are_errors: true
+sudo: required
 cache: packages
-apt_packages: libiodbc2-dev libiodbc2 iodbc
-brew_packages: unixODBC
+r_binary_packages: r-cran-rodbc
+

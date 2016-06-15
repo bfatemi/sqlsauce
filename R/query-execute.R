@@ -55,6 +55,7 @@ xQuery <- function(db, query, time=FALSE) {
     return(dt)
 }
 
+#' @describeIn ExecuteQuery An alias to xQuery
 #' @export
 dataDish <- xQuery
 

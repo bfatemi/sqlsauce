@@ -1,4 +1,4 @@
-# sqlsauce
+# [![Travis-CI Build Status](https://travis-ci.org/bfatemi/sqlsauce.svg?branch=master)](https://travis-ci.org/bfatemi/sqlsauce) sqlsauce
 
 ## Source File Prefix
 
@@ -20,4 +20,4 @@ The prefixes (and potentially an additional subsequent identifier) for the filen
 
    Functions within files that begin with "utils" are mostly internal utilities. Some of these functions will be extracted and bundled in their own package
 
-[![Travis-CI Build Status](https://travis-ci.org/bfatemi/sqlsauce.svg?branch=master)](https://travis-ci.org/bfatemi/sqlsauce)
+

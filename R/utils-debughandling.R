@@ -14,7 +14,7 @@ time.env <- new.env(parent = emptyenv())
 
 #' @describeIn DebugHelp A helper function to display sql errors that occur during a query
 #' @importFrom data.table data.table setnames
-#' @importFrom utils str
+#' @importFrom utils str capture.output
 PrintSqlError <- function(msg=NULL, friendly=NULL, nFrame=NULL){
     # statDT <- data.table(sapply(db, ConnAttr), keep.rownames = TRUE)
     # setnames(statDT, c("Database", db))

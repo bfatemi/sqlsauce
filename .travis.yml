@@ -3,7 +3,5 @@
 language: R
 sudo: true
 cache: packages
-apt_packages: libiodbc2-dev,
-    libiodbc2,
-    iodbc
+apt_packages: libiodbc2-dev libiodbc2 iodbc
 brew_packages: unixODBC

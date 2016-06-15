@@ -5,3 +5,4 @@
 ^development/
 ^Old/
 ^examples/
+^\.travis\.yml$

@@ -4,5 +4,5 @@ language: R
 warnings_are_errors: true
 sudo: required
 cache: packages
-r_binary_packages: r-cran-rodbc
+r_binary_packages: rodbc
 

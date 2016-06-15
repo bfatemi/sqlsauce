@@ -1,6 +1,6 @@
 
 check_access <- function() {
-    skip_on_travis("Skipping connection testing")
+    skip_on_travis()
 }
 
 

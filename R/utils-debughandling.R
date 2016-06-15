@@ -14,6 +14,7 @@ time.env <- new.env(parent = emptyenv())
 
 #' @describeIn DebugHelp A helper function to display sql errors that occur during a query
 #' @importFrom data.table data.table setnames
+#' @importFrom utils str
 PrintSqlError <- function(msg=NULL, friendly=NULL, nFrame=NULL){
     # statDT <- data.table(sapply(db, ConnAttr), keep.rownames = TRUE)
     # setnames(statDT, c("Database", db))
@@ -29,13 +30,13 @@ PrintSqlError <- function(msg=NULL, friendly=NULL, nFrame=NULL){
                          ConnectionEnv = capture.output(str(cn.env)))
 
     # Print info with title centered on border length
-    str(object = ErrorInfo,
-        indent.str = "$...",
-        comp.str = " ",
-        no.list = TRUE,
-        give.length = FALSE,
-        give.attr = FALSE,
-        give.head = FALSE)
+    utils::str(object = ErrorInfo,
+               indent.str = "$...",
+               comp.str = " ",
+               no.list = TRUE,
+               give.length = FALSE,
+               give.attr = FALSE,
+               give.head = FALSE)
     stop(paste0("SQL ERROR: ", msg), call. = FALSE)
 }
 

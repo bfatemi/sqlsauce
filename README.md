@@ -1,5 +1,7 @@
 # [![Travis-CI Build Status](https://travis-ci.org/bfatemi/sqlsauce.svg?branch=master)](https://travis-ci.org/bfatemi/sqlsauce) sqlsauce
 
+[![Coverage Status](https://img.shields.io/codecov/c/github/bfatemi/sqlsauce/master.svg)](https://codecov.io/github/bfatemi/sqlsauce?branch=master)
+
 ## Source File Prefix
 
 The prefixes (and potentially an additional subsequent identifier) for the filenames describe their purpose and reason for grouping:

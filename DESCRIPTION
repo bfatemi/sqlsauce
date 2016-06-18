@@ -15,5 +15,6 @@ Imports:
 License: MIT + file LICENSE
 LazyData: true
 Suggests:
-    testthat
+    testthat,
+    covr
 RoxygenNote: 5.0.1

@@ -6,3 +6,6 @@ sudo: required
 cache: packages
 r_binary_packages: rodbc
 
+after_success:
+  - Rscript -e 'covr::codecov()'
+

@@ -2,6 +2,8 @@
 
 [![Coverage Status](https://img.shields.io/codecov/c/github/bfatemi/sqlsauce/master.svg)](https://codecov.io/github/bfatemi/sqlsauce?branch=master)
 
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/sqlsauce)](https://cran.r-project.org/package=sqlsauce)
+
 ## Source File Prefix
 
 The prefixes (and potentially an additional subsequent identifier) for the filenames describe their purpose and reason for grouping:

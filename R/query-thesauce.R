@@ -70,11 +70,10 @@ QuerySauce <- function(tbl=NULL, top=NULL, cols=NULL, where=NULL, verbose=FALSE)
 #' @export
 #' @importFrom data.table data.table
 WhereSauce <- function(...){
+    # wheresauce needs to evaluate the right side of this
+
     ll <- substitute(...)
-
-    # lookup table for valid R -> query operators
-    opsDT <- OpsDT()
-
+    #opsDT <- OpsDT()
 
     sauce <- paste0("\nWHERE ", QueryTree(ll))
     return(sauce)

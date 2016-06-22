@@ -78,6 +78,9 @@ CheckDB <- function(db=NULL){
 
 #' @describeIn AccessInfo internal function
 Databases <- function(){
+    warning("Auth function Databases has been deprecated in favor
+            of a more secure RSA encrypted version that requires a
+            password to unlock credentials")
     ll_all <- list(
         ll_Morpheus =
             list(driver   = "SQL Server",

@@ -10,8 +10,9 @@
 #'      query execution
 #' @param cols An optional character vector specifying columns to return. If not
 #'      provided, all columns will be returned
-#' @param where The output from a call to WhereSauce. A character string representing
+#' @param wh The output from a call to WhereSauce. A character string representing
 #'      a valid where clause
+#' @param where Deprecated. Use \code{wh} instead.
 #' @param ... Arguments to create the WHERE statement
 #' @param verbose A boolean indicating whether to print the constructed query
 #'
@@ -53,12 +54,17 @@
 #'
 #' @describeIn QuerySauce A function to build the query
 #' @importFrom data.table data.table
-QuerySauce <- function(tbl=NULL, top=NULL, cols=NULL, where=NULL, verbose=FALSE){
+QuerySauce <- function(tbl=NULL, top=NULL, cols=NULL, wh=NULL, where=NULL, verbose=FALSE){
+    if(is.null(wh) & !is.null(where)){
+        warning("Parameter 'where' is deprecated. Please use parameter 'wh' instead")
+        wh <- where
+    }
+
     cols[is.null(cols)] <- "*"
     top[!is.null(top)] <- paste("TOP", top)[!is.null(top)]
     cols <- paste(cols, collapse=",\n\t")
 
-    sauce <- paste("SELECT", top, cols, "\nFROM", tbl, where, "\n")
+    sauce <- paste("SELECT", top, cols, "\nFROM", tbl, wh, "\n")
 
     if(TRUE){
         cat("\n
@@ -67,9 +73,7 @@ QuerySauce <- function(tbl=NULL, top=NULL, cols=NULL, where=NULL, verbose=FALSE)
 +-+-+-+-+-+-+-+-+-+ +-+-+-+-+-+
             \n")
         cat(sauce)
-        cat("
-+-+-+-+-+-+-+-+-+-+ +-+-+-+-+-+
-            ")
+        cat("\n")
     }
     return(sauce)
 }

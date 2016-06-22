@@ -10,8 +10,8 @@
 \alias{Wsauce}
 \title{The Sauce for Dishing Data}
 \usage{
-QuerySauce(tbl = NULL, top = NULL, cols = NULL, where = NULL,
-  verbose = FALSE)
+QuerySauce(tbl = NULL, top = NULL, cols = NULL, wh = NULL,
+  where = NULL, verbose = FALSE)
 
 WhereSauce(...)
 
@@ -21,7 +21,7 @@ QueryTree(ll)
 
 ColSauce(...)
 
-Qsauce(tbl = NULL, top = NULL, cols = NULL, where = NULL,
+Qsauce(tbl = NULL, top = NULL, cols = NULL, wh = NULL, where = NULL,
   verbose = FALSE)
 
 Wsauce(...)
@@ -35,8 +35,10 @@ query execution}
 \item{cols}{An optional character vector specifying columns to return. If not
 provided, all columns will be returned}
 
-\item{where}{The output from a call to WhereSauce. A character string representing
+\item{wh}{The output from a call to WhereSauce. A character string representing
 a valid where clause}
+
+\item{where}{Deprecated. Use \code{wh} instead.}
 
 \item{verbose}{A boolean indicating whether to print the constructed query}
 

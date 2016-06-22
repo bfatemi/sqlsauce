@@ -132,15 +132,5 @@ OpenCloseAttr <- function(db){
 }
 
 
-test_that("Open/Close Connections", {
-
-    check_access()
-    dbs <- ValidDB()
-    expect_warning(OpenCloseAttr(dbs[[1]]), "already closed")
-    expect_warning(OpenCloseAttr(dbs[[2]]), "already closed")
-    expect_warning(OpenCloseAttr(dbs[[3]]), "already closed")
-    expect_warning(OpenCloseAttr(dbs[[4]]), "already closed")
-})
-
 
 

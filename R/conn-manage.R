@@ -25,6 +25,16 @@ OpenDB <- function(db=NULL){
     # need to initiate if does not exist
     # We know it's active. Need to only update attributes if already open
 
+    # conn <- GetConn("SAP")
+    # rconn <- ref::as.ref(conn)
+    #
+    #
+    # nrconn <- refs(conn)
+    #
+    # where("conn")
+    # cn.env
+    # where("cn.SAP", cn.env)get("cn.SAP",cn.env))
+
     if(!ConnExists(db))
         return(initConn(db, caller, calltime))
 
@@ -106,5 +116,26 @@ GetConn <- function(db){
     if(!ConnExists(db))
         stop("No connection has been initiated", call. = FALSE)
     get(paste0("cn.", db), cn.env)
-
 }
+
+
+#' @describeIn ManageConnections A function to get a connection object from the connection pool
+#' @export
+GetConnRef <- function(db){
+    db <- CheckDB(db)
+    if(!ConnExists(db))
+        stop("No connection has been initiated", call. = FALSE)
+
+
+
+    # a <- cn.env[[paste0("cn.", db)]]
+    # b <- get(paste0("cn.", db), cn.env)
+    #
+    # attr(cn.env[[paste0("cn.", db)]], "test") <- 100
+    #
+    #
+    # attr(b, "test")
+    # setattr(a, "test", 22)
+    # setattr(b)
+}
+

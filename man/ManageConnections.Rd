@@ -6,6 +6,7 @@
 \alias{ConnExists}
 \alias{ConnPool}
 \alias{GetConn}
+\alias{GetConnRef}
 \alias{ManageConnections}
 \alias{OpenDB}
 \title{Managing Connections}
@@ -21,6 +22,8 @@ ConnExists(db = NULL)
 Clean(db = NULL)
 
 GetConn(db)
+
+GetConnRef(db)
 }
 \arguments{
 \item{db}{A character value representing the name of a database}
@@ -46,6 +49,8 @@ if argument is not the name of a configured db
 \item \code{Clean}: A function to clean the connection pool
 
 \item \code{GetConn}: A function to get a connection object from the connection pool
+
+\item \code{GetConnRef}: A function to get a connection object from the connection pool
 }}
 \section{Note}{
 

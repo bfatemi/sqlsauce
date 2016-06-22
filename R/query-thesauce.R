@@ -60,8 +60,17 @@ QuerySauce <- function(tbl=NULL, top=NULL, cols=NULL, where=NULL, verbose=FALSE)
 
     sauce <- paste("SELECT", top, cols, "\nFROM", tbl, where, "\n")
 
-    if(verbose)
-        PrintMessage("Generated Query", content = sauce)
+    if(TRUE){
+        cat("\n
++-+-+-+-+-+-+-+-+-+ +-+-+-+-+-+
+|G|e|n|e|r|a|t|e|d| |Q|u|e|r|y|
++-+-+-+-+-+-+-+-+-+ +-+-+-+-+-+
+            \n")
+        cat(sauce)
+        cat("
++-+-+-+-+-+-+-+-+-+ +-+-+-+-+-+
+            ")
+    }
     return(sauce)
 }
 

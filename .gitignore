@@ -4,4 +4,4 @@
 .RData
 packrat/lib*/
 *.Rproj
-^encryptauth.R$
+encryptauth.R

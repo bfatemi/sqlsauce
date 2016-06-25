@@ -11,7 +11,9 @@ Imports:
     stringr,
     gsubfn,
     RODBC,
-    data.table
+    data.table,
+    pryr,
+    lazyeval
 License: MIT + file LICENSE
 LazyData: true
 Suggests:

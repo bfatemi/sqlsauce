@@ -72,12 +72,12 @@ lenx <- function(...){
 
 lenx(x > 6)
 
-extract_op(wfjwieowf >= 123, col = "Bobby", col>1, blah = werw, w>1, cola, colb, test=c("cola", "colb"))
+extract_op(wfjwieowf >= 123, col = "Bobby", col>1, blah = werw, w>1, !is.na(bob), test=c("cola", "colb"))
 
 
 op <- function(x) x[[1]]
 
-cop <- function(x) as.character(x[[1]])
+ch_op <- function(x) as.character(x[[1]])
 
 lop <- function(x) x[[2]]
 
@@ -89,9 +89,67 @@ crop <- function(x) as.character(x[[3]])
 
 revop <- function(x) pryr::make_call(x[[1]], x[[3]], x[[2]])
 
+Negate(`>`)
+
+QueryTree(...)
+SplitOp(ProcedureID == "4")
+
+
+SplitOp <- function(exp){
+    # e <- substitute(exp)
+    list(Left = lop(exp), Call = op(exp), Right = rop(exp))
+}
+
+lsplitOp <- function(...){
+    d <- pryr::dots(...)
+    #return(d)
+    lefts <- lapply(lapply(d, as.call), lop)
+    rights <- lapply(lapply(d, as.call), rop)
+    ops <- lapply(lapply(d, as.call), op)
+
+    return(list(Left = lefts, Call = ops, Right = rights))
+    #pryr::compose(length, unique)
+}
+
+
+
+not(is.null(five))
+
+quote(is.na(NA))[[2]]
+
+not(a == 5)
+
+not(">")(2,4)
+not(">")(5,4)
+
+library(data.table)
+dt <- data.table(a = c(1, 2,3, 4, 5), b=rnorm(5, 10, 4))
+dt[, eval(not(b > 5))]
+
+`!`(TRUE)
+Negate('is.na')(NA))
+
+firstcall <- alist(!is.na(NA))[[1]][[1]]
+secondcall <- alist(!is.na(NA))[[1]][[2]]
+
+class(alist(!is.na(NA))[[1]][[2]][[2]])
+
+CTree <- function(exp){
+
+    if(is.call(exp)){
+        for(i in 1:legn)
+    }
+}
+CallTree <- function()
+
+
+
+b <- 444
+lapply(, class)
+not(5)
 
 cSauce(a >= 123, col = c("Bobby", "jeff"), Arm>1)
-
+cSauce(wfjwieowf >= 123, col = "Bobby", col>1, blah = werw, w>1, !is.na(bob), test=c("cola", "colb"))
 # f <- function(...) return(pryr::named_dots(...))
 # sCalls <- f(a > b)
 #

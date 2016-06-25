@@ -95,8 +95,8 @@ WhereSauce <- function(...){
 #' @describeIn QuerySauce Function to translate R operators to sql ones
 #' @importFrom data.table data.table
 OpsDT <- function(){
-    ops <- data.table(validops = c("|", "||", "&", "&&", "<>", "><",">", "<", "<=", ">=", "=="),
-               querytext = c("OR", "OR", "AND", "AND", "NOT", "NOT",">", "<", "<=", ">=", "="))
+    ops <- data.table(validops = c("|", "||", "&", "&&", "!=", ">", "<", "<=", ">=", "=="),
+               querytext = c("OR", "OR", "AND", "AND",  "!=", ">", "<", "<=", ">=", "="))
     return(ops)
 }
 
@@ -105,30 +105,59 @@ OpsDT <- function(){
 #' @export
 #' @importFrom data.table data.table
 QueryTree <- function(ll){
+
     if(length(ll)==0)
         stop("condition length 0", call. = F)
 
-    opsDT <- OpsDT()
+    opsDT <- sqlsauce:::OpsDT()
 
-    ind <- which(opsDT$validops %in% as.character(ll[[1]]))
+
+    ind <- which(opsDT$validops %in% as.character(ll$expr[[1]]))
     qlogical <- opsDT[ind, querytext]
 
     # elements to the left and right of the operator we just pulled out
-    rElement <- ll[-1][[length(ll[-1])]]
-    lElement <- ll[-1][[1]]
+    #rElement <- ll[-1][[length(ll[-1])]]
+    # lElement <- ll[-1][[1]]
 
+    rElement <- ll$expr[-1][[length(ll$expr[-1])]]
+    lElement <- ll$expr[-1][[1]]
 
     if(length(lElement) == 1 | grepl("^Year(.+)$", deparse(lElement), perl = T)[1]){
         lElement <- deparse(lElement)
-        if(length(eval(rElement)) == 1)
+        if(length(eval(rElement, ll$env)) == 1)
             ret <- paste0(lElement, " ", qlogical, " '", eval(rElement), "'")
         else
             ret <- paste0(lElement, " IN ('",
-                          paste(eval(rElement), collapse = "','"), "')\n")
+                          paste(eval(rElement, ll$env), collapse = "','"), "')\n")
         return(ret)
     }
-    return(paste(QueryTree(lElement), qlogical, QueryTree(rElement)))
+    return(paste(testQueryTree(lElement), qlogical, testQueryTree(rElement)))
 }
+# QueryTree <- function(ll){
+#     if(length(ll)==0)
+#         stop("condition length 0", call. = F)
+#
+#     opsDT <- OpsDT()
+#
+#     ind <- which(opsDT$validops %in% as.character(ll[[1]]))
+#     qlogical <- opsDT[ind, querytext]
+#
+#     # elements to the left and right of the operator we just pulled out
+#     rElement <- ll[-1][[length(ll[-1])]]
+#     lElement <- ll[-1][[1]]
+#
+#
+#     if(length(lElement) == 1 | grepl("^Year(.+)$", deparse(lElement), perl = T)[1]){
+#         lElement <- deparse(lElement)
+#         if(length(eval(rElement)) == 1)
+#             ret <- paste0(lElement, " ", qlogical, " '", eval(rElement), "'")
+#         else
+#             ret <- paste0(lElement, " IN ('",
+#                           paste(eval(rElement), collapse = "','"), "')\n")
+#         return(ret)
+#     }
+#     return(paste(QueryTree(lElement), qlogical, QueryTree(rElement)))
+# }
 
 
 #' @describeIn QuerySauce A function to retrieve the column names associated with the
@@ -149,10 +178,92 @@ ColSauce <- function(...){
     return(lapply(slice, f))
 }
 
+#' @describeIn QuerySauce A helper to append arbitrary AND conditions to the return object of \code{Wsauce}. See examples
+#' @export
+AND <- function(wh, string){
+    paste0(wh, " AND ", string)
+}
+
+#' @describeIn QuerySauce A helper to append arbitrary OR conditions to the return object of \code{Wsauce}. See examples
+#' @export
+OR <- function(wh, string){
+    paste0(wh, " OR ", string)
+}
+
+
+#' @describeIn QuerySauce A function to handle not expressions
+#' @param ... One or more logical operations to produce the negated syntax for sql
+#' @import data.table
+#' @export
+not <- function(...){
+    d <- pryr::dots(...)[[1]]
+
+    name <- ch_op(d)
+
+    if(name == "is.null")
+        return(paste0(lop(d), " IS NOT NULL"))
+
+    if(name == "is.na")
+        return(paste0(lop(d), " != NA"))
+
+    col <- lop(d)
+    val <- rop(d)
+
+    if(is.na(val) | val %in% c("NA", "na", "Na", "n/a", "N/A"))
+        return(paste0(col, " != NA"))
+
+    notOps <- data.table(A = c("!=", ">", "<", "<=", ">=", "=="),
+                         B = c("==", "<", ">", ">=", "<=", "!="))
+
+    qlogical <- notOps[which(notOps$A == name), B]
+
+    if(length(eval(val)) == 1)
+        ret <- paste0(col, " ", qlogical, " '", eval(val), "'")
+    else
+        ret <- paste0(col, "NOT IN ('", paste(eval(val), collapse = "','"), "')\n")
+    return(ret)
+}
+
+
 #' @describeIn QuerySauce An alias to QuerySauce
 #' @export
 Qsauce <- QuerySauce
 
 #' @describeIn QuerySauce An alias to WhereSauce
 #' @export
-Wsauce <- WhereSauce
+#Wsauce <- WhereSauce
+Wsauce <- function(...){
+    # wheresauce needs to evaluate the right side of this
+
+    ll <- lazyeval::lazy(...)
+    sauce <- paste0("\nWHERE ", QueryTree(ll))
+    return(sauce)
+}
+
+#' @describeIn QuerySauce Get operator
+#' @param x A logical operation in the form of an expression
+op <- function(x) x[[1]]
+
+#' @describeIn QuerySauce Get character op
+#' @param x A logical operation in the form of an expression
+ch_op <- function(x) as.character(x[[1]])
+
+#' @describeIn QuerySauce Get left side op
+#' @param x A logical operation in the form of an expression
+lop <- function(x) x[[2]]
+
+#' @describeIn QuerySauce Get character left side op
+#' @param x A logical operation in the form of an expression
+clop <- function(x) as.character(x[[2]])
+
+#' @describeIn QuerySauce Get right side op
+#' @param x A logical operation in the form of an expression
+rop <- function(x) x[[3]]
+
+#' @describeIn QuerySauce Get character right side op
+#' @param x A logical operation in the form of an expression
+crop <- function(x) as.character(x[[3]])
+
+#' @describeIn QuerySauce Reverse operations
+#' @param x A logical operation in the form of an expression
+revop <- function(x) pryr::make_call(x[[1]], x[[3]], x[[2]])

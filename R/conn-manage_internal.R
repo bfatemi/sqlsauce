@@ -8,6 +8,9 @@
 #' @param ts internal timestamp
 cn.env <- new.env(parent = emptyenv())
 
+
+pw.env <- new.env(parent = emptyenv())
+
 #' @describeIn InternalConnHandling internal function to initiate a connection
 #' @importFrom RODBC odbcDriverConnect
 #' @importFrom data.table setattr

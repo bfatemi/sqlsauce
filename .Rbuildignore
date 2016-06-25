@@ -7,4 +7,4 @@
 ^examples/
 ^\.travis\.yml$
 ^AddDB/
-^encryptauth.R$
+encryptauth.R

@@ -13,7 +13,8 @@ Imports:
     RODBC,
     data.table,
     pryr,
-    lazyeval
+    lazyeval,
+    stringi
 License: MIT + file LICENSE
 LazyData: true
 Suggests:

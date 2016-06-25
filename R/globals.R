@@ -1,5 +1,5 @@
 # For variables used in "data.table" in ColumnInfo function
-globalVariables(c("Column", ":=", "IsKey", ".", ".N", "Table", "Type"))
+globalVariables(c("B", "Column", ":=", "IsKey", ".", ".N", "Table", "Type"))
 
 # For variables used in "data.table" in TableInfo function
 globalVariables(c(".", ".N", "Database"))

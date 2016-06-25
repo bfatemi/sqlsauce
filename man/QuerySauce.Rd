@@ -72,23 +72,12 @@ a valid where clause}
 
 \item{verbose}{A boolean indicating whether to print the constructed query}
 
-\item{...}{Arguments to create the WHERE statement}
+\item{...}{Arguments to create the WHERE statement or as in the case of 
+the \code{not} function: One or more logical operations to produce the negated syntax for sql}
 
 \item{ll}{A list object that wraps the R expressions in order to translate to sql where conditions}
 
-\item{x}{A logical operation in the form of an expression}
-
-\item{...}{One or more logical operations to produce the negated syntax for sql}
-
-\item{x}{A logical operation in the form of an expression}
-
-\item{x}{A logical operation in the form of an expression}
-
-\item{x}{A logical operation in the form of an expression}
-
-\item{x}{A logical operation in the form of an expression}
-
-\item{x}{A logical operation in the form of an expression}
+\item{string}{A string to concat to the supplied where statement}
 
 \item{x}{A logical operation in the form of an expression}
 }

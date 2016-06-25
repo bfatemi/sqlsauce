@@ -13,8 +13,11 @@
 #' @param wh The output from a call to WhereSauce. A character string representing
 #'      a valid where clause
 #' @param where Deprecated. Use \code{wh} instead.
-#' @param ... Arguments to create the WHERE statement
+#' @param ... Arguments to create the WHERE statement or as in the case of 
+#'      the \code{not} function: One or more logical operations to produce the negated syntax for sql
 #' @param verbose A boolean indicating whether to print the constructed query
+#' @param x A logical operation in the form of an expression
+#' @param string A string to concat to the supplied where statement
 #'
 #' @export
 #'
@@ -109,7 +112,7 @@ QueryTree <- function(ll){
     if(length(ll)==0)
         stop("condition length 0", call. = F)
 
-    opsDT <- sqlsauce:::OpsDT()
+    opsDT <- OpsDT()
 
 
     ind <- which(opsDT$validops %in% as.character(ll$expr[[1]]))
@@ -131,7 +134,7 @@ QueryTree <- function(ll){
                           paste(eval(rElement, ll$env), collapse = "','"), "')\n")
         return(ret)
     }
-    return(paste(testQueryTree(lElement), qlogical, testQueryTree(rElement)))
+    return(paste(QueryTree(lElement), qlogical, QueryTree(rElement)))
 }
 # QueryTree <- function(ll){
 #     if(length(ll)==0)
@@ -192,7 +195,6 @@ OR <- function(wh, string){
 
 
 #' @describeIn QuerySauce A function to handle not expressions
-#' @param ... One or more logical operations to produce the negated syntax for sql
 #' @import data.table
 #' @export
 not <- function(...){
@@ -241,29 +243,22 @@ Wsauce <- function(...){
 }
 
 #' @describeIn QuerySauce Get operator
-#' @param x A logical operation in the form of an expression
 op <- function(x) x[[1]]
 
 #' @describeIn QuerySauce Get character op
-#' @param x A logical operation in the form of an expression
 ch_op <- function(x) as.character(x[[1]])
 
 #' @describeIn QuerySauce Get left side op
-#' @param x A logical operation in the form of an expression
 lop <- function(x) x[[2]]
 
 #' @describeIn QuerySauce Get character left side op
-#' @param x A logical operation in the form of an expression
 clop <- function(x) as.character(x[[2]])
 
 #' @describeIn QuerySauce Get right side op
-#' @param x A logical operation in the form of an expression
 rop <- function(x) x[[3]]
 
 #' @describeIn QuerySauce Get character right side op
-#' @param x A logical operation in the form of an expression
 crop <- function(x) as.character(x[[3]])
 
 #' @describeIn QuerySauce Reverse operations
-#' @param x A logical operation in the form of an expression
 revop <- function(x) pryr::make_call(x[[1]], x[[3]], x[[2]])

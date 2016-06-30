@@ -16,9 +16,17 @@ NULL
 #' @export
 ConnString <- function(db=NULL){
     db <- CheckDB(db)
-    cnstr <- substitute(paste0("Driver=",    driver,
-                               ";Server=",   server,
-                               ";database=", database, usr, pw))
+
+    if(db == "HNP"){
+        cnstr <- substitute(paste0("Driver=",    driver,
+                                   ";servernode=",   servernode,
+                                   ";database=", database, usr, pw))
+    }else{
+        cnstr <- substitute(paste0("Driver=",    driver,
+                                   ";Server=",   server,
+                                   ";database=", database, usr, pw))
+    }
+
     eval(cnstr, get(paste0("ll_", db), Databases()))
 }
 
@@ -110,6 +118,18 @@ Databases <- function(){
             list(driver   = "SQL Server",
                  server   = "snganalytics\\db1",
                  database = "SAP",
+                 usr      = ";trusted_connection=true",
+                 pw       = NULL),
+        ll_Finance =
+            list(driver   = "SQL Server",
+                 server   = "snganalytics\\db1",
+                 database = "Finance",
+                 usr      = ";trusted_connection=true",
+                 pw       = NULL),
+        ll_HNP =
+            list(driver   = "{HDBODBC}",
+                 servernode = "isrghnp:30015",
+                 database = "HNP",
                  usr      = ";trusted_connection=true",
                  pw       = NULL))
     return(ll_all)

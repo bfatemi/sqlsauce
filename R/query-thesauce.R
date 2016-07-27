@@ -69,7 +69,7 @@ QuerySauce <- function(tbl=NULL, top=NULL, cols=NULL, wh=NULL, where=NULL, verbo
 
     sauce <- paste("SELECT", top, cols, "\nFROM", tbl, wh, "\n")
 
-    if(TRUE){
+    if(verbose){
         cat("\n
 +-+-+-+-+-+-+-+-+-+ +-+-+-+-+-+
 |G|e|n|e|r|a|t|e|d| |Q|u|e|r|y|

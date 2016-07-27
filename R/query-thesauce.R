@@ -13,7 +13,7 @@
 #' @param wh The output from a call to WhereSauce. A character string representing
 #'      a valid where clause
 #' @param where Deprecated. Use \code{wh} instead.
-#' @param ... Arguments to create the WHERE statement or as in the case of 
+#' @param ... Arguments to create the WHERE statement or as in the case of
 #'      the \code{not} function: One or more logical operations to produce the negated syntax for sql
 #' @param verbose A boolean indicating whether to print the constructed query
 #' @param x A logical operation in the form of an expression
@@ -109,7 +109,10 @@ OpsDT <- function(){
 #' @importFrom data.table data.table
 QueryTree <- function(ll){
 
-    if(length(ll)==0)
+    if(class(ll) != "lazy")
+        ll <- lazyeval::as.lazy(ll)
+
+    if(length(ll$expr)==0)
         stop("condition length 0", call. = F)
 
     opsDT <- OpsDT()
@@ -119,11 +122,12 @@ QueryTree <- function(ll){
     qlogical <- opsDT[ind, querytext]
 
     # elements to the left and right of the operator we just pulled out
-    #rElement <- ll[-1][[length(ll[-1])]]
+    # rElement <- ll[-1][[length(ll[-1])]]
     # lElement <- ll[-1][[1]]
 
     rElement <- ll$expr[-1][[length(ll$expr[-1])]]
     lElement <- ll$expr[-1][[1]]
+
 
     if(length(lElement) == 1 | grepl("^Year(.+)$", deparse(lElement), perl = T)[1]){
         lElement <- deparse(lElement)

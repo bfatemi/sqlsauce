@@ -72,7 +72,7 @@ a valid where clause}
 
 \item{verbose}{A boolean indicating whether to print the constructed query}
 
-\item{...}{Arguments to create the WHERE statement or as in the case of 
+\item{...}{Arguments to create the WHERE statement or as in the case of
 the \code{not} function: One or more logical operations to produce the negated syntax for sql}
 
 \item{ll}{A list object that wraps the R expressions in order to translate to sql where conditions}

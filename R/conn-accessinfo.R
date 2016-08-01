@@ -131,6 +131,12 @@ Databases <- function(){
                  servernode = "isrghnp:30015",
                  database = "HNP",
                  usr      = ";trusted_connection=true",
+                 pw       = NULL),
+        ll_HNI =
+            list(driver   = "{HDBODBC}",
+                 servernode = "isrghnp:30015",
+                 database = "HNI",
+                 usr      = ";trusted_connection=true",
                  pw       = NULL))
     return(ll_all)
 }

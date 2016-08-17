@@ -6,7 +6,7 @@
 #' @param db A character value naming the database (e.g. "Morpheus")
 #' @param closeConn A boolean indicating whether this function to close the connection to "db". Default is TRUE.
 #' @param print A boolean indicating whether to print information on the R console
-#'
+#' @param tbl_Pattern A regex pattern to filter on desired tables
 #'
 #' @examples
 #' \dontrun{
@@ -41,17 +41,22 @@ TableInfo <- function(db=NULL, print=FALSE) {
         db <- sapply(Databases(),"[[","database")
 
     fn_fetch <- function(i){
+        print(paste0("Fetching db: ", i))
         OpenDB(i)                          # OpenDB will check valid db name
+
         dt <- getTables(i)
+
+        if(nrow(dt)==0)
+            return(NULL)
 
         set(dt, j = dropCols, value = NULL)
         setnames(dt, friendlyName)
         setkeyv(dt, c("Database", "Table"))
 
-        return(PrimaryKey(i,dt$Table))
+        return(PrimaryKey(i, dt$Table))
     }
 
-    res <- rbindlist(lapply(db, fn_fetch))
+    res <- rbindlist(lapply(db, fn_fetch), fill=TRUE)
 
     if(print){
         print(res[,.(NumberOfTables = .N), by=Database], row.names = FALSE)
@@ -59,49 +64,73 @@ TableInfo <- function(db=NULL, print=FALSE) {
         print(res[1:min(15,nrow(res)),], row.names = FALSE)
     }
 
-    CloseDB(db)
     return(res)
 }
 
+
+#' @describeIn TableInfo Will present a relation between tables in a given db
+#' @export
+#' @importFrom stringr str_detect
+Relate <- function(db=NULL, tbls=NULL, tbl_Pattern=NULL){
+    resdt <- TableInfo(db)
+
+    if(is.null(tbls) & is.null(tbl_Pattern))
+        return(resdt)
+
+    dat <- resdt[Table %in% tbls | stringr::str_detect(Table, tbl_Pattern)]
+    wresdt <- dcast(dat,
+                    Database + Table ~ PrimaryKey,
+                    value.var = "PK_Position")
+    setnames(wresdt, "NA", "NO_KEY")
+    return(wresdt)
+}
+
+
+
+# Relate("RemoteFE")
+
 #' @describeIn TableInfo A function to retrieve information about one or more table's primary key column
-#' @param tables A character vector of table names belonging to the database specified by "db"
+#' @param tbls A character vector of table names belonging to the database specified by "db"
 #' @export
 #' @importFrom data.table data.table set setnames setkeyv rbindlist
-PrimaryKey <- function(db=NULL, tables=NULL){
+# tbls <- dt$Table
+PrimaryKey <- function(db=NULL, tbls=NULL){
     dropCols     <- c("TABLE_SCHEM", "PK_NAME")
     keepCols     <- c("TABLE_CAT", "TABLE_NAME", "COLUMN_NAME","KEY_SEQ")
     friendlyName <- c("Database", "Table", "PrimaryKey", "PK_Position")
 
     OpenDB(db)
-    if(is.null(tables)) tables <- TableInfo(db)[, unique(Table)]
-
+    on.exit(CloseDB(db))
+    if(is.null(tbls)) stop("No tables supplied to PrimaryKey", call. = FALSE) #tbls <- TableInfo(db)[, unique(Table)]
 
     # Helper fn to run through each table iteratively
     f <- function(i){
         tmp <- getPrimaryKey(db, i)
 
         if(nrow(tmp)){
+            # tmp2 <- tmp[, !dropCols, with=FALSE]
             set(tmp, j = dropCols, value = NULL)    # Drop cols by ref
             setnames(tmp, keepCols, friendlyName)   # Change to friendly names
+        }else{
+            tmp <- data.table(Database=db, Table=i)
         }
         return(tmp)
     }
 
     emsg <- "Error in PrimaryKey()"
-    dt <- RunCatch(rbindlist(lapply(tables, f)), emsg, emsg)
+    dt <- RunCatch(rbindlist(lapply(tbls, f), fill=TRUE), emsg, emsg)
 
     emsg <- "Error setting keys in PrimaryKey"
     RunCatch(setkeyv(dt, c("Database", "Table")), emsg, emsg)
 
-    CloseDB(db)
-    return(dt)
+    return(easydata::CleanCols(dt))
 }
 
 #' @describeIn TableInfo A function to detailed information about a given table's columns.
-#'      If argument "tables" not provided, retrive information about all tables in the specified database
+#'      If argument "tbls" not provided, retrive information about all tbls in the specified database
 #' @export
 #' @importFrom data.table data.table set setnames setkeyv rbindlist
-ColumnInfo <- function(db=NULL, tables=NULL, closeConn=FALSE, print=FALSE) {
+ColumnInfo <- function(db=NULL, tbls=NULL, closeConn=FALSE, print=FALSE) {
     dropCols     <- c("TABLE_SCHEM", "DATA_TYPE", "BUFFER_LENGTH",
                       "NUM_PREC_RADIX", "NULLABLE", "REMARKS",
                       "COLUMN_DEF", "SQL_DATA_TYPE","SQL_DATETIME_SUB",
@@ -112,12 +141,12 @@ ColumnInfo <- function(db=NULL, tables=NULL, closeConn=FALSE, print=FALSE) {
     friendlyName <- c("Database",  "Table", "Column", "Type", "ColumnSize",
                       "DecimalDigits", "Position","IsNullable")
 
-    # If not provided, run for all dbo tables
-    if(is.null(tables)) tables <- "%"
+    # If not provided, run for all dbo tbls
+    if(is.null(tbls)) tbls <- "%"
     if(is.null(db)) stop("Please provide db name")
 
     OpenDB(db)
-    dt <- getColumns(db, tables)                     # run query for col names
+    dt <- getColumns(db, tbls)                     # run query for col names
 
     set(dt, j = dropCols, value = NULL)
     setnames(dt, keepCols, friendlyName)
@@ -138,8 +167,6 @@ ColumnInfo <- function(db=NULL, tables=NULL, closeConn=FALSE, print=FALSE) {
         if(n < nrow(dt))
             cat("--------------------- TRUNCATED ---------------------\n")
     }
-
-    #CloseDB(db) #primary key closes this
     return(dt)
 }
 
@@ -149,18 +176,18 @@ ColumnInfo <- function(db=NULL, tables=NULL, closeConn=FALSE, print=FALSE) {
 #'      information is simply printed on the R console and not captured. Ideal default for quick lookups.
 #' @export
 #' @importFrom data.table data.table set setnames setkeyv rbindlist
-Columns <- function(db=NULL, tables=NULL, return=FALSE, closeConn=TRUE){
+Columns <- function(db=NULL, tbls=NULL, return=FALSE, closeConn=TRUE){
     cat("\nDatabase:", db)
-    cat("\nDB Table:", tables)
+    cat("\nDB Table:", tbls)
     cat("\n\n")
 
-    dt <- ColumnInfo(db, tables, closeConn, print = FALSE)
+    dt <- ColumnInfo(db, tbls, closeConn, print = FALSE)
 
     set(dt, j=c("Database",
-                            "Table",
-                            "ColumnSize",
-                            "DecimalDigits",
-                            "IsNullable"), value=NULL)
+                "Table",
+                "ColumnSize",
+                "DecimalDigits",
+                "IsNullable"), value=NULL)
     if(return)
         return(dt)
     print(dt, row.names = TRUE)
@@ -170,11 +197,11 @@ Columns <- function(db=NULL, tables=NULL, return=FALSE, closeConn=TRUE){
 #' @importFrom RODBC sqlTables
 #' @importFrom data.table data.table set setnames setkeyv rbindlist
 getTables <- function(db=NULL) {
+    OpenDB(db)
     cnObj <- GetConn(db)
 
-    dt <- RunCatch(sqlTables(channel   = cnObj,
-                             schema    = "dbo",
-                             tableType = "TABLE"), "Error in getTables")
+    dt <- RunCatch(sqlTables(channel   = cnObj, tableType = "TABLE"),
+                   "Error in getTables")
     dt <- data.table(dt)
     return(dt)
 }
@@ -182,11 +209,11 @@ getTables <- function(db=NULL) {
 #' @describeIn TableInfo An internal wrapper around sqlColumns
 #' @importFrom RODBC sqlColumns
 #' @importFrom data.table data.table set setnames setkeyv rbindlist
-getColumns <- function(db=NULL, tables) {
+getColumns <- function(db=NULL, tbls) {
     cnObj  <- GetConn(db)
 
     dt <- RunCatch(sqlColumns(channel = cnObj,
-                              sqtable = tables), "Error in getColumns")
+                              sqtable = tbls), "Error in getColumns")
     dt <- data.table(dt)
     return(dt)
 }
@@ -194,11 +221,22 @@ getColumns <- function(db=NULL, tables) {
 #' @describeIn TableInfo An internal wrapper around sqlPrimaryKeys
 #' @importFrom RODBC sqlPrimaryKeys
 #' @importFrom data.table data.table set setnames setkeyv rbindlist
-getPrimaryKey <- function(db=NULL, tables) {
+getPrimaryKey <- function(db=NULL, tbls) {
+    # OpenDB(db)
     cnObj  <- GetConn(db)
+    # tbls = "SAPTBL.ZCOPA_XRATE_DATA_04092016"
 
-    dt <- RunCatch(sqlPrimaryKeys(channel = cnObj,
-                                  sqtable = tables), "Error in getPrimaryKey")
-    dt <- data.table(dt)
+    dt <- tryCatch({
+        sqlPrimaryKeys(channel = cnObj, sqtable = tbls)
+    }, error = function(c){
+        if(stringr::str_detect(c$message, "table not found")){
+            a <- as.data.table(list(Database=NULL, Table=NULL))
+            return(a)
+        }else{
+            stop(c$message, call. = FALSE)
+        }
+    })
+
+    dt <- as.data.table(dt)
     return(dt)
 }

@@ -4,6 +4,7 @@
 \alias{ColumnInfo}
 \alias{Columns}
 \alias{PrimaryKey}
+\alias{Relate}
 \alias{TableInfo}
 \alias{getColumns}
 \alias{getPrimaryKey}
@@ -12,24 +13,28 @@
 \usage{
 TableInfo(db = NULL, print = FALSE)
 
-PrimaryKey(db = NULL, tables = NULL)
+Relate(db = NULL, tbls = NULL, tbl_Pattern = NULL)
 
-ColumnInfo(db = NULL, tables = NULL, closeConn = FALSE, print = FALSE)
+PrimaryKey(db = NULL, tbls = NULL)
 
-Columns(db = NULL, tables = NULL, return = FALSE, closeConn = TRUE)
+ColumnInfo(db = NULL, tbls = NULL, closeConn = FALSE, print = FALSE)
+
+Columns(db = NULL, tbls = NULL, return = FALSE, closeConn = TRUE)
 
 getTables(db = NULL)
 
-getColumns(db = NULL, tables)
+getColumns(db = NULL, tbls)
 
-getPrimaryKey(db = NULL, tables)
+getPrimaryKey(db = NULL, tbls)
 }
 \arguments{
 \item{db}{A character value naming the database (e.g. "Morpheus")}
 
 \item{print}{A boolean indicating whether to print information on the R console}
 
-\item{tables}{A character vector of table names belonging to the database specified by "db"}
+\item{tbls}{A character vector of table names belonging to the database specified by "db"}
+
+\item{tbl_Pattern}{A regex pattern to filter on desired tables}
 
 \item{closeConn}{A boolean indicating whether this function to close the connection to "db". Default is TRUE.}
 
@@ -44,10 +49,12 @@ exploration of the Morpheus data
 \itemize{
 \item \code{TableInfo}: Given a database, get all databases on same server
 
+\item \code{Relate}: Will present a relation between tables in a given db
+
 \item \code{PrimaryKey}: A function to retrieve information about one or more table's primary key column
 
 \item \code{ColumnInfo}: A function to detailed information about a given table's columns.
-If argument "tables" not provided, retrive information about all tables in the specified database
+If argument "tbls" not provided, retrive information about all tbls in the specified database
 
 \item \code{Columns}: A function that serves as a quick lookup of columns in a table. Defaults to table
 "MainLog" in database "Morpheus".

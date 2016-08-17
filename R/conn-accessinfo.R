@@ -17,9 +17,9 @@ NULL
 ConnString <- function(db=NULL){
     db <- CheckDB(db)
 
-    if(db == "HNP"){
+    if(db == "HNP" | db == "HNI"){
         cnstr <- substitute(paste0("Driver=",    driver,
-                                   ";servernode=",   servernode,
+                                   ";servernode=", servernode,
                                    ";database=", database, usr, pw))
     }else{
         cnstr <- substitute(paste0("Driver=",    driver,
@@ -60,6 +60,9 @@ CheckDB <- function(db=NULL){
 
     if(is.null(db))
         stop("No db name provided", call. = FALSE)
+    if(length(db) != 1)
+        stop(paste0("CheckDB- length(db) > 1: ", paste0(db, collapse = TRUE)), call. = FALSE)
+
 
     tryCatch(
         as.character(match.arg(db, valid_DBs)),

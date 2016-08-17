@@ -12,6 +12,7 @@
 #' @param friendly A friendly description of the error message to be displayed
 time.env <- new.env(parent = emptyenv())
 
+
 #' @describeIn DebugHelp A helper function to display sql errors that occur during a query
 #' @importFrom data.table data.table setnames
 #' @importFrom utils str capture.output

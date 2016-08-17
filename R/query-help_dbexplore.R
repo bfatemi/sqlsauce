@@ -123,7 +123,9 @@ PrimaryKey <- function(db=NULL, tbls=NULL){
     emsg <- "Error setting keys in PrimaryKey"
     RunCatch(setkeyv(dt, c("Database", "Table")), emsg, emsg)
 
-    return(easydata::CleanCols(dt))
+    # release easydata on cran then uncomment this
+    # return(easydata::CleanCols(dt))
+    return(dt)
 }
 
 #' @describeIn TableInfo A function to detailed information about a given table's columns.

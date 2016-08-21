@@ -14,10 +14,15 @@ Imports:
     data.table,
     pryr,
     lazyeval,
-    stringi
+    stringi,
+    sodium,
+    iptools,
+    RCurl,
+    tcltk
 License: MIT + file LICENSE
 LazyData: true
 Suggests:
     testthat,
-    covr
+    covr,
+    secure
 RoxygenNote: 5.0.1

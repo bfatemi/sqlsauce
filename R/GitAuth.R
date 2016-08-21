@@ -1,5 +1,12 @@
+#' Github Authentication
+#'
+#' Functions to enable backend github authentication
+#'
+#' @name BackendAuth
 authenv <- new.env()
 
+
+#' @describeIn BackendAuth
 GitApp <- function(){
     app_name <- "sqlsauce"
     cid <- "767908ae5ba9cafa38c6"
@@ -7,6 +14,9 @@ GitApp <- function(){
     httr::oauth_app(app_name, cid, ckey)
 }
 
+#' @describeIn BackendAuth A function to authorize app through github
+#' @param reauth A boolean to indicating whether to reauthorize access (default = FALSE)
+#' @export
 GitAuth <- function(reauth = FALSE){
 
     if (exists("auth_config", envir = authenv) && !reauth)
@@ -36,6 +46,12 @@ GitAuth <- function(reauth = FALSE){
 }
 
 
+#' @describeIn BackendAuth A basic function to interact with Github API.
+#'              Proper credits to Hadley Wickham coming.
+#' @param path The API path
+#' @param config Additional headers for API call
+#' @param json A boolean to indicate whether to check response for json format. Default = TRUE
+#' @export
 github_api <- function(path, config=NULL, json=TRUE) {
     url <- modify_url("https://api.github.com", path = path)
     resp <- GET(url, config)
@@ -67,8 +83,11 @@ github_api <- function(path, config=NULL, json=TRUE) {
 }
 
 
-
-CheckOrg <- function(){
+#' @describeIn BackendAuth A function that checks whether the authenticated github user
+#'              is a member of the given organization
+#' @param orgname Character vector of length 1 that represents the name of the organization
+#' @export
+CheckOrg <- function(orgname="intusurg"){
 
     # get current authenticated user, or authenticate
     auth <- GitAuth()
@@ -79,7 +98,7 @@ CheckOrg <- function(){
 
     # Get authenticated users organization and tmp check if its intusurg, but later
     # change to just check github username in an encrypted list of allowed users
-    path <- paste0("/orgs/intusurg/members/", usr)
+    path <- paste0("/orgs/", orgname, "/members/", usr)
 
     r2 <- suppressWarnings(github_api(path, auth))
 
@@ -87,7 +106,11 @@ CheckOrg <- function(){
     return(FALSE)
 }
 
-
+#' @describeIn BackendAuth An updated version of the prior function to pull access info.
+#'          This function pulls access info from remote location and stores it locally.
+#'          It can also update local file
+#' @param bUpdate A boolean representing whether to update the local access file
+#' @export
 Databases <- function(bUpdate = FALSE){
 
     # soon update this function to change reading/updating local package file to
@@ -134,14 +157,19 @@ Databases <- function(bUpdate = FALSE){
     return(readRDS(destn))
 }
 
-print.github_api <- function(x, ...) {
-    cat("<GitHub ", x$path, ">\n", sep = "")
-    str(x$content)
-    invisible(x)
-}
+# print.github_api <- function(x, ...) {
+#     cat("<GitHub ", x$path, ">\n", sep = "")
+#     str(x$content)
+#     invisible(x)
+# }
 
-
-FileMove <- function(destn=NULL, fpath=NULL, overwrite=FALSE, makedir = TRUE){
+#' @describeIn BackendAuth A better function to move files. Move later
+#' @param fpath File to move
+#' @param destn new location to move to
+#' @param overwrite A boolean indicating whether to overwrite existing file at destination
+#' @param makedir A boolean indicating whether to create a new directory for destination file
+#'      if one did not previously exist (default = TRUE)
+FileMove <- function(fpath=NULL, destn=NULL, overwrite=FALSE, makedir = TRUE){
 
     # automate common helpful checks that are done before a file is moved
     # wrapper around file.rename
@@ -210,66 +238,66 @@ FileMove <- function(destn=NULL, fpath=NULL, overwrite=FALSE, makedir = TRUE){
 
 
 
-DigitalOceanAPI <- function(...){
-    # Make this a structure as it will hold family of functions
-
-    # Idea is to create functions that parallelize common tasks at the vector level,
-    # then feed into a parallelization at the list level.
-    #
-    # For example, we can parallize running the function mean on multiple vectors,
-    # but what if each vector was also too large and required it's each distributed
-    # processing of the average?
-
-
-
-    # Uses Roboust R Client for DO API ----------------------------------------
-
-    # This function should be able to parallize at the local level if possible, and/or
-    # talk to DIGITALOCEAN API and serialize + send data over to an existing hadoop
-    # cluster. A seperate function will be created to spawn a new cluster with digitalocean
-    #
-    # Quick Description: An interface to hadoop that abstracts away any cluster installation
-    # or sys administration required, using the digitalocean api, for easy and quick
-    # distributed computing for common tasks on big data
-    #
-    # Needs: make it possible to spawn a new cluster all through an R function call, and
-    # then also make it easy to send a computation to the active node. This requires an
-    # updated (and possibly new) R hadoop interface, and creating a previously non-existent
-    # R client for digitalocean. User would have to have a digitalocean account, but spawning
-    # new clusters, monitoring computations, expanding, shutting down, tracking costs, will
-    # all be wrapped in user-friendly R function calls
-    #
-    # Applications:
-    # Creating models or algorithms that dynamically add nodes based on
-    # set conditions or in the case of accuracy or desired outcome potentially being affected by
-    # the size of a batch of data being processed (or even total execution time), apply unsupervised
-    # learning for a smart algorithm optimizes parameters of distributed computing to acheive
-    # better results. For example: if I need something done faster, and I'm willing to accept
-    # a higher cost, I can specify my ideal cost per minute, and the maximum minutes I'm willing to
-    # to wait until aborting. The algo would log meta data about it's how long it takes to process
-    # certain types of information and amount of information, and uses that in addition to users limits
-    # to (1) not execute if not possible to meet user's limits, or (2) warn the user that it was X
-    # pcnt likely that it would hit the ceiling but average processing time per minute would be
-    # Y more than desired.
-
-    # In the case of finance, if the algo believes that speed of processing and executing trades
-    # changes with certain finance events (one example is qtrly financial data dumps occuring for a
-    # set of frequently interchanging companies, or that learning whether frequency trades impacts
-    # the performance of a strategy, it has the power to dynamically adjust size of cluster
-    # and even optimize marginal increases in returns with processing power costs
-
-    # look up what the fastest mean function in R or Python is, and benchmark against
-    # base R and this function
-}
-
-
-
-
-
+# DigitalOceanAPI <- function(...){
+#     # Make this a structure as it will hold family of functions
 #
-# github_api("/repos/bfatemi/sqlsauceauth/readme", auth)
+#     # Idea is to create functions that parallelize common tasks at the vector level,
+#     # then feed into a parallelization at the list level.
+#     #
+#     # For example, we can parallize running the function mean on multiple vectors,
+#     # but what if each vector was also too large and required it's each distributed
+#     # processing of the average?
 #
-# ll_all <- readRDS(destn)
+#
+#
+#     # Uses Roboust R Client for DO API ----------------------------------------
+#
+#     # This function should be able to parallize at the local level if possible, and/or
+#     # talk to DIGITALOCEAN API and serialize + send data over to an existing hadoop
+#     # cluster. A seperate function will be created to spawn a new cluster with digitalocean
+#     #
+#     # Quick Description: An interface to hadoop that abstracts away any cluster installation
+#     # or sys administration required, using the digitalocean api, for easy and quick
+#     # distributed computing for common tasks on big data
+#     #
+#     # Needs: make it possible to spawn a new cluster all through an R function call, and
+#     # then also make it easy to send a computation to the active node. This requires an
+#     # updated (and possibly new) R hadoop interface, and creating a previously non-existent
+#     # R client for digitalocean. User would have to have a digitalocean account, but spawning
+#     # new clusters, monitoring computations, expanding, shutting down, tracking costs, will
+#     # all be wrapped in user-friendly R function calls
+#     #
+#     # Applications:
+#     # Creating models or algorithms that dynamically add nodes based on
+#     # set conditions or in the case of accuracy or desired outcome potentially being affected by
+#     # the size of a batch of data being processed (or even total execution time), apply unsupervised
+#     # learning for a smart algorithm optimizes parameters of distributed computing to acheive
+#     # better results. For example: if I need something done faster, and I'm willing to accept
+#     # a higher cost, I can specify my ideal cost per minute, and the maximum minutes I'm willing to
+#     # to wait until aborting. The algo would log meta data about it's how long it takes to process
+#     # certain types of information and amount of information, and uses that in addition to users limits
+#     # to (1) not execute if not possible to meet user's limits, or (2) warn the user that it was X
+#     # pcnt likely that it would hit the ceiling but average processing time per minute would be
+#     # Y more than desired.
+#
+#     # In the case of finance, if the algo believes that speed of processing and executing trades
+#     # changes with certain finance events (one example is qtrly financial data dumps occuring for a
+#     # set of frequently interchanging companies, or that learning whether frequency trades impacts
+#     # the performance of a strategy, it has the power to dynamically adjust size of cluster
+#     # and even optimize marginal increases in returns with processing power costs
+#
+#     # look up what the fastest mean function in R or Python is, and benchmark against
+#     # base R and this function
+# }
+#
+#
+#
+#
+#
+# #
+# # github_api("/repos/bfatemi/sqlsauceauth/readme", auth)
+# #
+# # ll_all <- readRDS(destn)
 
 
 

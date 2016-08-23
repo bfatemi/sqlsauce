@@ -24,6 +24,5 @@ License: MIT + file LICENSE
 LazyData: true
 Suggests:
     testthat,
-    covr,
-    secure
+    covr
 RoxygenNote: 5.0.1

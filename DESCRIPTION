@@ -15,7 +15,6 @@ Imports:
     pryr,
     lazyeval,
     stringi,
-    sodium,
     iptools,
     RCurl,
     tcltk,

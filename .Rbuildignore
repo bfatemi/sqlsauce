@@ -8,3 +8,7 @@
 ^\.travis\.yml$
 ^AddDB/
 encryptauth.R
+.httr-oauth
+^\.httr-oauth$
+GitAuth_private.R
+R/dbdata/database

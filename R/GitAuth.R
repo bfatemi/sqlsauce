@@ -3,69 +3,47 @@
 #' Functions to enable backend github authentication
 #'
 #' @name BackendAuth
-authenv <- new.env()
+NULL
+# authenv <- new.env(parent = emptyenv())
 
 
-#' @describeIn BackendAuth
+#' @describeIn BackendAuth returns github app key
 GitApp <- function(){
     app_name <- "sqlsauce"
     cid <- "767908ae5ba9cafa38c6"
-    ckey <- "2155d57dacf121f4dc940bc33375afd076cdf8c3"
+    ckey <- "fc7ba02b5b195f6e47729299645c6af1a94aec39"
     httr::oauth_app(app_name, cid, ckey)
-}
-
-#' @describeIn BackendAuth A function to authorize app through github
-#' @param reauth A boolean to indicating whether to reauthorize access (default = FALSE)
-#' @export
-GitAuth <- function(reauth = FALSE){
-
-    if (exists("auth_config", envir = authenv) && !reauth)
-        return(authenv$auth_config)
-
-    # if token already exists as environment variable
-    pat <- Sys.getenv("GITHUB_PAT", "")
-    if (!identical(pat, "")) {
-        auth_config <- httr::add_headers(Authorization = paste0("token ", pat))
-    }
-    else if (!interactive()) {
-        stop("In non-interactive environments, please set GITHUB_PAT env to a GitHub",
-             " access token (https://help.github.com/articles/creating-an-access-token-for-command-line-use)",
-             call. = FALSE)
-    }
-    else {
-        app <- GitApp()
-        endpt <- httr::oauth_endpoints("github")
-        access <- "write:public_key, read:org"
-
-        token <- httr::oauth2.0_token(endpt, app, scope = access, cache = !reauth, use_basic_auth = TRUE)
-
-        auth_config <- httr::config(token = token)
-    }
-    assign("auth_config", auth_config, envir = authenv)
-    return(auth_config)
 }
 
 
 #' @describeIn BackendAuth A basic function to interact with Github API.
 #'              Proper credits to Hadley Wickham coming.
 #' @param path The API path
-#' @param config Additional headers for API call
+#' @param gtoken Additional headers for API call
 #' @param json A boolean to indicate whether to check response for json format. Default = TRUE
-#' @export
-github_api <- function(path, config=NULL, json=TRUE) {
-    url <- modify_url("https://api.github.com", path = path)
-    resp <- GET(url, config)
+github_api <- function(path, gtoken=NULL, json=TRUE) {
 
-    if (http_type(resp) != "application/json") {
-        warning("API did not return json", call. = FALSE)
+    url <- httr::modify_url("https://api.github.com", path = path)
+
+    if(!interactive()){
+        url <- httr::modify_url("https://api.github.com", path = path)
+        resp <-httr::GET(url, httr::authenticate("bfatemi", Sys.getenv("GITHUB_PAT")))
+    }else{
+        resp <-httr::GET(url, gtoken)
+    }
+
+
+
+    if(httr::http_type(resp) != "application/json") {
+        # warning("API did not return json", call. = FALSE)
         return(resp)
     }
-    parsed <- jsonlite::fromJSON(content(resp, "text"), simplifyVector = FALSE)
-    if (http_error(resp)) {
+    parsed <- jsonlite::fromJSON(httr::content(resp, "text"), simplifyVector = FALSE)
+    if (httr::http_error(resp)) {
         stop(
             sprintf(
                 "GitHub API request failed [%s]\n%s\n<%s>",
-                status_code(resp),
+                httr::status_code(resp),
                 parsed$message,
                 parsed$documentation_url
             ),
@@ -89,22 +67,30 @@ github_api <- function(path, config=NULL, json=TRUE) {
 #' @export
 CheckOrg <- function(orgname="intusurg"){
 
-    # get current authenticated user, or authenticate
-    auth <- GitAuth()
+    # if not interactive, like testing suite, then pull the locally stored token, else do oauth dance
+    if(!interactive()){
+        r1 <- github_api("/user")
+    }else{
+        token <- httr::oauth2.0_token(endpoint = httr::oauth_endpoints("github"),
+                                      app = GitApp(),
+                                      scope = "read:org, user:email, write:public_key",
+                                      cache = TRUE)
+        gtoken <- httr::config(token = token)
+        r1 <- github_api("/user", gtoken)
+    }
 
-    r1 <- github_api("/user", auth)
-    usrinfo <- jsonlite::fromJSON(content(r1$response, "text"), simplifyVector = FALSE)
+    usrinfo <- jsonlite::fromJSON(httr::content(r1$response, "text"), simplifyVector = FALSE)
     usr <- usrinfo$login
 
     # Get authenticated users organization and tmp check if its intusurg, but later
     # change to just check github username in an encrypted list of allowed users
     path <- paste0("/orgs/", orgname, "/members/", usr)
-
-    r2 <- suppressWarnings(github_api(path, auth))
+    r2 <- suppressWarnings(github_api(path, gtoken)) # only care about code that is being returned
 
     if(r2$status_code == 204) return(TRUE)
     return(FALSE)
 }
+
 
 #' @describeIn BackendAuth An updated version of the prior function to pull access info.
 #'          This function pulls access info from remote location and stores it locally.
@@ -112,15 +98,22 @@ CheckOrg <- function(orgname="intusurg"){
 #' @param bUpdate A boolean representing whether to update the local access file
 #' @export
 Databases <- function(bUpdate = FALSE){
-
     # soon update this function to change reading/updating local package file to
     # reading updating global R file but using a environment var. Advantages?
-    #
-    packageDir <- normalizePath(path.package("sqlsauce", quiet = FALSE))
+    packageDir <- system.file("R", package = "sqlsauce")
+
     destn <- suppressWarnings(normalizePath(paste0(packageDir, "\\dbdata\\database")))
 
-    # file definitely exists, so unless we need to update it, return data
+    # check if this should init data
+    if(!file.exists(destn)) bUpdate <- TRUE
+
+    # Update db file if user asks or if we need to initialize it (set true above)
     if(bUpdate){
+
+        # remove hidden cached file
+        cache_path <- paste0(packageDir, "\\.httr-oauth")
+        suppressWarnings(file.remove(cache_path))
+
         # Since we need to pull remote data and update local file,
         # Check access for remote data using CheckOrg
         bHasISI <- CheckOrg()
@@ -129,25 +122,42 @@ Databases <- function(bUpdate = FALSE){
             # Pull the data and save as temp file. Then replace old file safely with FileMove
             tmpdestn <- suppressWarnings(tempfile(tmpdir = normalizePath(dirname(destn))))
 
-            # get token
-            auth <- GitAuth()
-            headr <- add_headers(Accept = "application/vnd.github.raw")
-            auth2 <- httr::set_config(config = headr)
+            if(!interactive()){
+                # only accept raw
+                httr::set_config(httr::add_headers(Accept = "application/vnd.github.raw"), override = FALSE)
 
-            # get private data on private repo using token
-            filepath <- "/data/serialdat"
-            urlcall <- "/repos/bfatemi/sqlsauce_auth/contents"
+                # get private data on private repo using token
+                resp <- github_api("/repos/bfatemi/sqlsauce_auth/contents/data/serialdat")
 
-            path <- paste0(urlcall, filepath)
-            r1 <- suppressWarnings(github_api(path, auth, json = FALSE))
-            dat <- rawToChar(r1$content)
+
+                # set back to json
+                httr::set_config(httr::add_headers(Accept = "application/json"), override = FALSE)
+
+            }else{
+                token <- httr::oauth2.0_token(endpoint = httr::oauth_endpoints("github"),
+                                              app = GitApp(),
+                                              scope = "read:org, user:email, write:public_key",
+                                              cache = TRUE)
+                gtoken <- httr::config(token = token)
+
+                # only accept raw
+                httr::set_config(httr::add_headers(Accept = "application/vnd.github.raw"), override = FALSE)
+
+                resp <- github_api("/repos/bfatemi/sqlsauce_auth/contents/data/serialdat",
+                                   gtoken = token, json = FALSE)
+
+                # set back to json
+                httr::set_config(httr::add_headers(Accept = "application/json"), override = FALSE)
+            }
+            dat <- rawToChar(resp$content)
+
 
             # save extracted data in a tmp file in a temp location,
             # then copy to temp file within the package home folder
             tmploc <- tempfile()
             writeLines(dat, con = tmploc)
-            FileMove(destn = tmpdestn, fpath = tmploc) # move temp file into package folder
-            bMove <- FileMove(destn, tmpdestn, overwrite = TRUE) # replace the old file with the temp file
+            FileMove(fpath = tmploc, destn = tmpdestn) # move temp file into package folder
+            bMove <- FileMove(fpath = tmpdestn, destn = destn, overwrite = TRUE) # replace the old file with the temp file
             if(!bMove)
                 warning("File not updated. Old data returned")
         }else{
@@ -236,6 +246,45 @@ FileMove <- function(fpath=NULL, destn=NULL, overwrite=FALSE, makedir = TRUE){
     return(file.rename(fpath, destn))
 }
 
+
+#' @describeIn BackendAuth A function to retrieve the locally stored access token
+github_pat <- function() {
+    pat <- Sys.getenv('GITHUB_PAT')
+    if (identical(pat, "")) {
+        stop("Please set env var GITHUB_PAT to your github personal access token",
+             call. = FALSE)
+    }
+
+    pat
+}
+
+# #' @describeIn BackendAuth A function to authorize app through github
+# #' @param reauth A boolean to indicating whether to reauthorize access (default = FALSE)
+# #' @export
+# deprecatGitAuth <- function(cache = TRUE){
+#
+#     # if(exists("gtoken", envir = authenv) && !reauth)
+#     #     return(authenv$gtoken)
+#
+#     # if token already exists as environment variable
+#     pat <- Sys.getenv("GITHUB_PAT", "")
+#     # token is 396aa4dafc93b5de09d37113c5f0bb7d08adc3f5
+#     if (!identical(pat, "")) {
+#         gtoken <- httr::add_headers(Authorization = paste0("token ", pat))
+#     }else if (!interactive()) {
+#         stop("In non-interactive environments, please set GITHUB_PAT env to a GitHub",
+#              " access token (https://help.github.com/articles/creating-an-access-token-for-command-line-use)",
+#              call. = FALSE)
+#     }
+#
+#     app <- GitApp()
+#     endpt <- httr::oauth_endpoints("github")
+#     access <- "read:org, user:email, write:public_key"
+#     token <- httr::oauth2.0_token(endpt, app, scope = access, cache = cache)
+#     # gtoken <- httr::config(token = token)
+#     # assign("gtoken", gtoken, envir = authenv)
+#     return(token)
+# }
 
 
 # DigitalOceanAPI <- function(...){

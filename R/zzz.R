@@ -10,8 +10,7 @@
 
 
 # .onLoad <- function(libname, pkgname) {
-#     suppressPackageStartupMessages(libname)
-#     suppressWarnings(suppressMessages(libname))
+#     invisible(Databases())
 # }
 
 

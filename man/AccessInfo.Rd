@@ -4,7 +4,6 @@
 \alias{AccessInfo}
 \alias{CheckDB}
 \alias{ConnString}
-\alias{Databases}
 \alias{ValidDB}
 \title{Access Information}
 \usage{
@@ -15,8 +14,6 @@ AccessInfo(db = NULL)
 ValidDB()
 
 CheckDB(db = NULL)
-
-Databases()
 }
 \arguments{
 \item{db}{A character value representing the name of a database}
@@ -36,8 +33,6 @@ a configured database
 
 \item \code{CheckDB}: A function to check the argument against a list of
 valid DBs. Returns error on a none match. Performs approximate match.
-
-\item \code{Databases}: internal function
 }}
 \section{Note}{
 

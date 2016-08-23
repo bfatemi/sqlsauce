@@ -18,7 +18,9 @@ Imports:
     sodium,
     iptools,
     RCurl,
-    tcltk
+    tcltk,
+    jsonlite,
+    httr
 License: MIT + file LICENSE
 LazyData: true
 Suggests:

@@ -15,6 +15,8 @@ test_that("Lookup functions", {
 
 OpenCloseAttr <- function(db){
 
+    # Open connection ---------------------------------------------------------
+
     opentest <- function(db){
         expect_identical(OpenDB(db), 1)
         expect_identical(SeeConn(db)[Names=="Status", Values], "Open")
@@ -24,6 +26,9 @@ OpenCloseAttr <- function(db){
         expect_identical(class(SeeConn(db, "TimeOpened")), "character")
     }
     opentest(db)
+
+
+    # Close connection --------------------------------------------------------
 
     closetest <- function(db){
         expect_identical(CloseDB(db), 1)
@@ -35,7 +40,13 @@ OpenCloseAttr <- function(db){
         expect_identical(class(SeeConn(db, "TimeClosed")), "character")
     }
     closetest(db)
+
+    # Clean connection env ----------------------------------------------------
+
     expect_equal(Clean(), 1)
+
+
+
 
     time <- Sys.time()
     expect_equal(OpenDB(db), 1)

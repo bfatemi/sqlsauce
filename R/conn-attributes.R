@@ -89,7 +89,7 @@ SeeConn <- function(db=NULL, what=NULL){
             else
                 return(as.character(xtimetaken(attr(cnObj, "TimeClosed"))))
         }
-
+        # attributes(cnObj)
         att <- attr(cnObj, which = what)
 
         if(is.null(att))

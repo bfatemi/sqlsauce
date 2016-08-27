@@ -131,5 +131,20 @@ OpenCloseAttr <- function(db){
 }
 
 
+test_that("run connections tests", {
+    check_access()
+
+    db <- "Morpheus"
+    OpenCloseAttr(db)
+
+    db <- "Morpheus"
+    OpenCloseAttr(db)
+    expect_equal(CheckDB(db),   "Morpheus")  # trys to find a matching database name, returns error if not
+    expect_type(AccessInfo(db), "list")      # access info for specified db
+    expect_type(ValidDB(),      "character") # What DBs are configured in the package?
+    expect_type(ConnString(db), "character") # Connection string for db?
+})
+
+
 
 

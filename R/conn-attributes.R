@@ -96,9 +96,18 @@ SeeConn <- function(db=NULL, what=NULL){
             warning("Not a recorded attribute. Check attribute name")
 
     }else{
+
+        # get all attribute names, and my current attribute values and create a data.table
+        anames <- ListConnAttr()
         att <- attributes(cnObj)
-        att <- data.table(Names = ListConnAttr(),
-                          Values = data.table(t(data.frame(att[ListConnAttr()])))$V1)
+        selected.att <- att[anames] # keep attributes that I chose with ListConnAttr()
+        names(selected.att) <- anames
+
+        # replace all NULL list elements with NA for conversion to dt in next step
+        selected.att <- lapply(selected.att, function(a) if(is.null(a)) NA else a)
+        att <- data.table(cbind(Names = anames, Values = unlist(selected.att)))
+        # att <- data.table(Names = anames,
+        #                   Values = data.table(t(data.frame(selected.att)))$V1)
 
         # update Duration attributes
         if(att[Names == "Status", Values] == "Open"){

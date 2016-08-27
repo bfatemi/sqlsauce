@@ -25,8 +25,8 @@ tbl <- "SFDC.dbo.PROCEDURES"
 #----------------------------------------------------------------------------
 psub <- c("HPB", "dVP", "dVC", "dVL") # for WHERE sauce
 
-wh    <- WhereSauce(ProcedureSubject == psub & Year(CreateDate) > 2015)
-query <- QuerySauce(tbl, top = 1000, where = wh)
+wh    <- Wsauce(ProcedureSubject == psub & Year(CreateDate) > 2015)
+query <- Qsauce(tbl, top = 1000, where = wh)
 
 DT    <- xQuery(db, query)
 

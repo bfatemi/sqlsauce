@@ -82,8 +82,7 @@ CheckOrg <- function(orgname="intusurg"){
     usrinfo <- jsonlite::fromJSON(httr::content(r1$response, "text"), simplifyVector = FALSE)
     usr <- usrinfo$login
 
-    # Get authenticated users organization and tmp check if its intusurg, but later
-    # change to just check github username in an encrypted list of allowed users
+    # See if usr is member of intuitive
     path <- paste0("/orgs/", orgname, "/members/", usr)
     r2 <- suppressWarnings(github_api(path, gtoken)) # only care about code that is being returned
 
@@ -119,14 +118,14 @@ Databases <- function(bUpdate = FALSE){
         bHasISI <- CheckOrg()
 
         if(bHasISI){
+          
             # Pull the data and save as temp file. Then replace old file safely with FileMove
             tmpdestn <- suppressWarnings(tempfile(tmpdir = normalizePath(dirname(destn))))
 
             if(!interactive()){
-                # only accept raw
+              
+                # only accept raw when getting data on public repo
                 httr::set_config(httr::add_headers(Accept = "application/vnd.github.raw"), override = FALSE)
-
-                # get private data on private repo using token
                 resp <- github_api("/repos/bfatemi/sqlsauce_auth/contents/data/serialdat")
 
 
@@ -139,7 +138,7 @@ Databases <- function(bUpdate = FALSE){
                                               scope = "read:org, user:email, write:public_key",
                                               cache = TRUE)
                 gtoken <- httr::config(token = token)
-
+    
                 # only accept raw
                 httr::set_config(httr::add_headers(Accept = "application/vnd.github.raw"), override = FALSE)
 

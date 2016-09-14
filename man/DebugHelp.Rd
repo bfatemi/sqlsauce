@@ -5,10 +5,7 @@
 \alias{.CallStack}
 \alias{.Caller}
 \alias{DebugHelp}
-\alias{PrintMessage}
 \alias{PrintSqlError}
-\alias{RunCatch}
-\alias{RunTimer}
 \alias{Timer}
 \alias{time.env}
 \alias{xtimetaken}
@@ -26,12 +23,6 @@ Timer(START = TRUE, print = FALSE)
 .CallStack(nFrame)
 
 .Caller(nFrame = NULL)
-
-PrintMessage(msg, sym = "#", content = NULL)
-
-RunCatch(code, emsg = NULL, wmsg = NULL, mmsg = NULL, pattern = NULL)
-
-RunTimer(code, successMsg = NULL, Catch = FALSE, ...)
 }
 \arguments{
 \item{msg}{A character string representing the message to display within the banner}
@@ -47,26 +38,6 @@ will display the timer information}
 
 \item{print}{A boolean indicating whether to print output on the console in addition to returning a numeric
 value representing the duration in seconds}
-
-\item{sym}{A character symbol used to create the banner}
-
-\item{content}{An optional object to print below the banner}
-
-\item{code}{The code to run}
-
-\item{emsg}{A character string representing the error message to display}
-
-\item{wmsg}{A character string representing the warning message to display}
-
-\item{mmsg}{A character string representing the generic message to display}
-
-\item{pattern}{An optional regex pattern used to parse the thrown error/warning/message}
-
-\item{successMsg}{A message to display after successful execution}
-
-\item{Catch}{A boolean indicating whether to run the code using RunCatch}
-
-\item{...}{Arguments to pass to RunCatch if boolean \code{Catch} is provided as TRUE}
 }
 \description{
 These are functions that are not exposed to users. They are internal functions designed to assist
@@ -84,12 +55,6 @@ with debugging errors related to tracing and identifying connections.
 
 \item \code{.Caller}: A function to parse the function call stack and identify a caller at the current postion
 or at the position identified by "nFrame"
-
-\item \code{PrintMessage}: A function to elegantly print a notification banner on the console
-
-\item \code{RunCatch}: A generic and intuitive error handling function (tryCatch wrapper)
-
-\item \code{RunTimer}: A function to assist in timing code execution
 }}
 \section{Internal Use Only}{
 

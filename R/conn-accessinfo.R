@@ -43,7 +43,7 @@ AccessInfo <- function(db=NULL){
                           names(obj) <- i[1]
                           return(obj)})
     DF <- data.frame(ParamValue = as.matrix(ll.info))
-    PrintMessage(paste0("Access Parameters: ", db), "+", DF)
+    fubar::PrintMessage(paste0("Access Parameters: ", db), "+", DF)
 }
 
 #' @describeIn AccessInfo See the current set of configured databases

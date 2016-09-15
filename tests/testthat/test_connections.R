@@ -1,20 +1,16 @@
+# Declare testing functions -----------------------------------------------
+
+
+# skip when doing continuous and remote building. Also, look into encryption for Travis
 check_access <- function() {
     skip_on_travis()
 }
 
 
-test_that("Lookup functions", {
-    check_access()
+# Function to open/close/clean connection to db, as well as checking attributes
+OpenCloseClean <- function(db){
 
-    db <- "Morpheus"
-    expect_equal(CheckDB(db),   "Morpheus")  # trys to find a matching database name, returns error if not
-    expect_type(AccessInfo(db), "list")      # access info for specified db
-    expect_type(ValidDB(),      "character") # What DBs are configured in the package?
-    expect_type(ConnString(db), "character") # Connection string for db?
-})
-
-OpenCloseAttr <- function(db){
-
+    # Open connection
     opentest <- function(db){
         expect_identical(OpenDB(db), 1)
         expect_identical(SeeConn(db)[Names=="Status", Values], "Open")
@@ -25,6 +21,8 @@ OpenCloseAttr <- function(db){
     }
     opentest(db)
 
+
+    # Close connection
     closetest <- function(db){
         expect_identical(CloseDB(db), 1)
         expect_identical(SeeConn(db)[Names=="Status", Values], "Closed")
@@ -35,8 +33,13 @@ OpenCloseAttr <- function(db){
         expect_identical(class(SeeConn(db, "TimeClosed")), "character")
     }
     closetest(db)
-    expect_equal(Clean(), 1)
 
+    # Clean connection env
+    expect_equal(Clean(), 1)
+}
+
+# Function to perform extensive checking of connection managment and attributes
+Chk_ConnManagement <- function(db){
     time <- Sys.time()
     expect_equal(OpenDB(db), 1)
     expect_equal(ConnPool(), db)                        # Returns all the connection (names) in the pool
@@ -53,7 +56,7 @@ OpenCloseAttr <- function(db){
     expect_identical(SeeConn(db, "Requestor"),  NA)
 
     # expecting time opened to be close to time declared above
-    expect_lt(abs(as.numeric(difftime(SeeConn(db, "TimeOpened"), time, units = "sec"))),1.5)
+    expect_lt(abs(as.numeric(difftime(SeeConn(db, "TimeOpened"), time, units = "sec"))), 1.5)
 
     # expecting time since initiated to be diff until now
     tdiff   <- abs(as.numeric(difftime(SeeConn(db, "TimeInitiated"),
@@ -79,15 +82,14 @@ OpenCloseAttr <- function(db){
 
     # duration between TimeRequested and TimeClosed should be about 5 seconds
     expect_lt(abs(as.numeric(difftime(SeeConn(db, "TimeClosed"),
-                              SeeConn(db, "TimeRequested"),
-                              units = "sec"))), 4)
+                                      SeeConn(db, "TimeRequested"),
+                                      units = "sec"))), 4)
 
 
-    expect_identical(CloseDB(db), 0)
-    expect_warning(CloseDB(db))
+    # expect 0 and warning from trying to close a closed connection
+    expect_warning(expect_identical(CloseDB(db), 0))
 
-
-
+    # check 'close' related attributes that are now updated
     expect_identical(SeeConn(db, "Status"),     "Closed")
     expect_identical(SeeConn(db, "Status"),     ConnStatus(db))
 
@@ -129,6 +131,34 @@ OpenCloseAttr <- function(db){
     closetest(db)
     Clean()
 }
+
+# UNIT TESTS BELOW --------------------------------------------------------
+
+# check various and simple lookup functions
+test_that("Lookup functions", {
+    check_access()
+
+    db <- "Morpheus"
+    expect_equal(CheckDB(db),   "Morpheus")  # trys to find a matching database name, returns error if not
+    expect_type(AccessInfo(db), "list")      # access info for specified db
+    expect_type(ValidDB(),      "character") # What DBs are configured in the package?
+    expect_type(ConnString(db), "character") # Connection string for db?
+})
+
+
+# Test open/close/clean/attributes for some DBs
+test_that("RemoteFE: open/close/clean", {
+    check_access()
+
+    OpenCloseClean("RemoteFE")
+    OpenCloseClean("HNI")
+    OpenCloseClean("SAP")
+
+    Chk_ConnManagement("RemoteFE")
+    Chk_ConnManagement("HNI")
+    Chk_ConnManagement("SAP")
+})
+
 
 
 

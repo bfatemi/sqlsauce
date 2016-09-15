@@ -37,8 +37,12 @@ TableInfo <- function(db=NULL, print=FALSE) {
     keepCols     <- c("TABLE_CAT", "TABLE_NAME")
     friendlyName <- c("Database",  "Table")
 
-    if(is.null(db))
-        db <- sapply(Databases(),"[[","database")
+    if(is.null(db)){
+        # db <- sapply(istools::Databases(),"[[","database")
+        db <- ValidDB() # this should return same as above
+    }
+
+
 
     fn_fetch <- function(i){
         print(paste0("Fetching db: ", i))

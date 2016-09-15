@@ -30,7 +30,7 @@ initConn <- function(db, caller, ts){
     setattr(cnObj, "Initiator", caller)
     setattr(cnObj, "Opener", caller)
     setattr(cnObj, "Closer", NA)
-    setattr(cnObj, "Requester", NA)
+    setattr(cnObj, "Requestor", NA)
     setattr(cnObj, "TimeInitiated", as.character(ts))
     setattr(cnObj, "TimeRequested", as.character(ts))
     setattr(cnObj, "TimeRequested", NA)

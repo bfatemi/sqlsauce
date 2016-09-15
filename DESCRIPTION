@@ -19,10 +19,12 @@ Imports:
     RCurl,
     tcltk,
     jsonlite,
-    httr
+    httr,
+    istools
 License: MIT + file LICENSE
 LazyData: true
 Suggests:
     testthat,
     covr
 RoxygenNote: 5.0.1
+Remote: bfatemi/istools

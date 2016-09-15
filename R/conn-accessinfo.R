@@ -27,7 +27,7 @@ ConnString <- function(db=NULL){
                                    ";database=", database, usr, pw))
     }
 
-    eval(cnstr, get(paste0("ll_", db), Databases()))
+    eval(cnstr, get(paste0("ll_", db), istools::Databases()))
 }
 
 
@@ -49,7 +49,7 @@ AccessInfo <- function(db=NULL){
 #' @describeIn AccessInfo See the current set of configured databases
 #' @export
 ValidDB <- function(){
-    as.character(sapply(Databases(),"[[","database"))
+    sapply(istools::Databases(),"[[","database")
 }
 
 #' @describeIn AccessInfo A function to check the argument against a list of

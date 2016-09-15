@@ -18,7 +18,7 @@ initConn <- function(db, caller, ts){
     cnName <- paste0("cn.", db)
     cnString <- ConnString(db)
 
-    cnObj <- RunCatch(
+    cnObj <- fubar::RunCatch(
         odbcDriverConnect(cnString, readOnlyOptimize = T),
         "CONNECTION FAILED",
         "CONNECTION FAILED",

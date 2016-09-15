@@ -12,7 +12,7 @@
 #' @export
 #' @importFrom RODBC sqlQuery
 #' @importFrom data.table data.table
-xQuery <- function(db, query, time=FALSE) {
+dataDish <- function(db, query, time=FALSE) {
 
     OpenDB(db)              # if user did not open connection, open it
     on.exit(CloseDB(db))    # then close it on exit
@@ -26,15 +26,15 @@ xQuery <- function(db, query, time=FALSE) {
     on.exit(options(scipen = globscipen), add = TRUE)
 
     Timer()
-    dt <- data.table(sqlQuery(GetConn(db), query, errors = TRUE))
+    rDT <- data.table(sqlQuery(GetConn(db), query, errors = TRUE))
     dur <- Timer(START = FALSE)
 
     if(time){
-        PrintMessage(paste0("Query completed in: ", dur, " seconds"), content = query)
+        fubar::PrintMessage(paste0("Query completed in: ", dur, " seconds"), content = query)
     }
 
     # if TRUE then error
-    if("V1" %in% colnames(dt)){
+    if("V1" %in% colnames(rDT)){
         errlookup <- data.table(ErrorMessage = c("Communication link failure",
                                                  "not find stored procedure",
                                                  "Invalid object name",
@@ -44,19 +44,19 @@ xQuery <- function(db, query, time=FALSE) {
                                                 "Check database table name",
                                                 "Check query string"))
 
-        errmsg <- stringr::str_extract(dt[1, V1], "(?<=SQL Server]).*$")
+        errmsg <- stringr::str_extract(rDT[1, V1], "(?<=SQL Server]).*$")
         friendly <- errlookup[which(stringr::str_detect(errmsg, ErrorMessage))[1], Description]
         PrintSqlError(errmsg, friendly, nFrame)
     }
 
-    if(!nrow(dt))
+    if(!nrow(rDT))
         warning("Query successfully executed but no data")
 
-    return(dt)
+    return(rDT)
 }
 
-#' @describeIn ExecuteQuery An alias to xQuery
-#' @export
-dataDish <- xQuery
+# #' @describeIn ExecuteQuery An alias to xQuery
+# #' @export
+# dataDish <- xQuery
 
 

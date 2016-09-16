@@ -2,8 +2,6 @@
 .Rprofile
 .Rhistory
 .RData
-packrat/lib*/
-*.Rproj
 encryptauth.R
 .httr-oauth
 GitAuth_private.R
